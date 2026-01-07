@@ -1,0 +1,22 @@
+# Python Data Prep Dependencies
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=14.0.0
+
+# Tableau Integration
+tableauserverclient>=0.30
+
+# Salesforce Integration
+simple-salesforce>=1.12.0
+
+# Data Validation
+pydantic>=2.5.0
+
+# Environment & Config
+python-dotenv>=1.0.0
+
+# Utilities
+requests>=2.31.0
+tqdm>=4.66.0

@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  narrative-hub:
+    build:
+      context: ./narrative-hub
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${API_URL:-http://api-server:3001}
+    depends_on:
+      - api-server
+    restart: unless-stopped
+    networks:
+      - insight-weaver-network
+
+  api-server:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - insight-weaver-network
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - insight-weaver-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - narrative-hub
+      - api-server
+    restart: unless-stopped
+    networks:
+      - insight-weaver-network
+
+networks:
+  insight-weaver-network:
+    driver: bridge
+
+volumes:
+  redis-data:
