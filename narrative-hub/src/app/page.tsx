@@ -148,12 +148,18 @@ export default function HomePage() {
                         >
                             Log in
                         </button>
-                        <Link
-                            href="/dashboard"
+                        <button
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    localStorage.setItem('iw_token', 'demo-token');
+                                    localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                                    router.push('/dashboard');
+                                }
+                            }}
                             className="h-full flex items-center px-6 lg:px-10 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 font-display font-bold text-sm lg:text-base uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-colors"
                         >
                             Start
-                        </Link>
+                        </button>
                     </div>
 
                 </div>
