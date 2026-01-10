@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, Loader2, Plus, Copy, Check, Terminal, CornerDownLeft, BarChart2, FileText, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { EmbeddedViz } from '@/components/EmbeddedViz';
+import { insightsApi, dataSourcesApi, narrativesApi } from '@/services/api';
 
 interface Message {
     id: string;
@@ -22,26 +24,47 @@ interface Message {
 }
 
 export function AgentChat() {
+    const [isMounted, setIsMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
             role: 'assistant',
             content:
-                "SYSTEM READY.\nInput query for data analysis. Concierge v2.0 is online.",
+                "SYSTEM READY.\nInput query for data analysis. Concierge v2.0 is online. \n\nI am connected to your Tableau Cloud environment as an AI Librarian. How can I help you explore your data today?",
             timestamp: new Date(),
         },
     ]);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [addedToNarrative, setAddedToNarrative] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleAddToNarrative = (id: string, content: string) => {
-        setAddedToNarrative(id);
-        // Simulate adding to narrative - in real app would call API
-        console.log('Added to narrative:', { id, content: content.substring(0, 50) });
-        setTimeout(() => setAddedToNarrative(null), 2000);
+    const handleAddToNarrative = async (id: string, content: string) => {
+        try {
+            setAddedToNarrative(id);
+            // In a real refined app, we might check for an active narrative, 
+            // but for hackathon demo, we'll create a new one based on this insight.
+            const result = await narrativesApi.create({
+                title: `Analysis: ${content.split('\n')[0].substring(0, 40)}...`,
+                hypothesis: content,
+                tags: ['ai-generated', 'concierge-insight']
+            });
+
+            if (result.success) {
+                console.log('Successfully created narrative from insight:', result.data.id);
+                // Keep the "check" icon visible for 2 seconds
+                setTimeout(() => setAddedToNarrative(null), 2000);
+            }
+        } catch (err) {
+            console.error('[Chat] Failed to save to narrative:', err);
+            setAddedToNarrative(null);
+            alert('SYSTEM ERROR: Failed to weave narrative. Please verify backend connection.');
+        }
     };
 
     const scrollToBottom = () => {
@@ -56,7 +79,7 @@ export function AgentChat() {
         if (!input.trim() || isLoading) return;
 
         const userMessage: Message = {
-            id: Date.now().toString(),
+            id: `msg-u-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             role: 'user',
             content: input,
             timestamp: new Date(),
@@ -66,27 +89,80 @@ export function AgentChat() {
         setInput('');
         setIsLoading(true);
 
-        // Simulate API response
-        setTimeout(() => {
-            const assistantMessage: Message = {
-                id: (Date.now() + 1).toString(),
+        try {
+            // Check for diagnostic command
+            if (input.toUpperCase().includes('DIAGNOSE') || input.toUpperCase().includes('HEALTH')) {
+                const result = await dataSourcesApi.list();
+
+                const assistantMessage: Message = {
+                    id: `msg-a-diag-${Date.now()}`,
+                    role: 'assistant',
+                    content: result.success
+                        ? "DIAGNOSTIC COMPLETE: Connection to Tableau Cloud is HEALTHY. Data sources are being indexed correctly."
+                        : "DIAGNOSTIC FAILED: Connection to Tableau Cloud returned an error. Please verify your .env.local credentials and ensure your Tableau user email is correctly configured.",
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, assistantMessage]);
+                setIsLoading(false);
+                return;
+            }
+
+            // Check for manual viz override
+            if (input.startsWith('/set-viz ')) {
+                let url = input.replace('/set-viz ', '').trim();
+
+                // Auto-fix URL format: Convert browser URL to embed URL
+                // From: .../#/site/my-site/views/...
+                // To:   .../t/my-site/views/...
+                if (url.includes('/#/site/')) {
+                    url = url.replace('/#/site/', '/t/');
+                }
+
+                localStorage.setItem('custom_viz_url', url);
+
+                const assistantMessage: Message = {
+                    id: `msg-a-conf-${Date.now()}`,
+                    role: 'assistant',
+                    content: `CONFIGURATION UPDATED: Visualization target set to "${url}". \n\nPlease ask your question again to see this dashboard.`,
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, assistantMessage]);
+                setIsLoading(false);
+                return;
+            }
+
+            // Call our real backend API
+            const result = await insightsApi.generate({ query: input });
+
+            if (result.success) {
+                const assistantMessage: Message = {
+                    id: result.data.insightId,
+                    role: 'assistant',
+                    content: result.data.narrative,
+                    timestamp: new Date(),
+                    visualization: {
+                        type: result.data.visualization.type === 'table' ? 'table' : 'chart',
+                        vizId: result.data.visualization.vizId
+                    },
+                    citations: result.data.citations,
+                    confidence: result.data.confidence,
+                };
+                setMessages((prev) => [...prev, assistantMessage]);
+            } else {
+                throw new Error('Failed to generate insight');
+            }
+        } catch (err) {
+            console.error('[Chat] Error:', err);
+            const errorMessage: Message = {
+                id: `msg-a-err-${Date.now()}`,
                 role: 'assistant',
-                content:
-                    'ANALYSIS COMPLETE.\n\nRevenue trajectory indicates a -12% deviation from Q3 forecast. Primary driver identified: North Region / Enterprise Segment.',
+                content: "ERROR: System malfunction during neural processing. Please retry query. " + (err instanceof Error ? err.message : ''),
                 timestamp: new Date(),
-                visualization: {
-                    type: 'chart',
-                    vizId: 'demo_viz_001',
-                },
-                citations: [
-                    { source: 'Salesforce: Oppty', field: 'Amount', timeRange: 'Q3 2024' },
-                    { source: 'Tableau: Revenue', field: 'AGG(Sales)' },
-                ],
-                confidence: 0.94,
             };
-            setMessages((prev) => [...prev, assistantMessage]);
+            setMessages((prev) => [...prev, errorMessage]);
+        } finally {
             setIsLoading(false);
-        }, 2000);
+        }
     };
 
     const handleCopy = (id: string, content: string) => {
@@ -100,6 +176,8 @@ export function AgentChat() {
         'ANOMALIES: LAST 24H',
         'FORECAST: NEXT QUARTER',
     ];
+
+    if (!isMounted) return null;
 
     return (
         <div className="h-[calc(100vh-4rem)] lg:h-[calc(100vh-8rem)] flex flex-col bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -117,6 +195,32 @@ export function AgentChat() {
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
                 <div className="max-w-4xl mx-auto">
+                    {messages.length === 1 && (
+                        <div className="p-8 lg:p-12 mb-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Show me Regional Sales Overview")}>
+                                    <BarChart2 className="w-5 h-5 text-brand-500 mb-4" />
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Regional Sales</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Show me Regional Sales Overview"</p>
+                                </button>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Why did profit margin drop in June?")}>
+                                    <Sparkles className="w-5 h-5 text-emerald-500 mb-4" />
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Trend Analysis</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Why did profit margin drop in June?"</p>
+                                </button>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Identify top 5 churn-risk customers")}>
+                                    <FileText className="w-5 h-5 text-blue-500 mb-4" />
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Customer Risk</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Identify top 5 churn-risk customers"</p>
+                                </button>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("SYSTEM: DIAGNOSE CONNECTION")}>
+                                    <Terminal className="w-5 h-5 text-slate-500 mb-4" />
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">System Diagnostic</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Run connection health check"</p>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                     <AnimatePresence mode="popLayout">
                         {messages.map((message) => (
                             <motion.div
@@ -148,7 +252,10 @@ export function AgentChat() {
                                             <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                                                 {message.role === 'assistant' ? 'INSIGHT ENGINE' : 'USER INPUT'}
                                             </span>
-                                            <span className="font-mono text-[10px] text-slate-300">
+                                            <span
+                                                className="font-mono text-xs text-slate-400 uppercase"
+                                                suppressHydrationWarning
+                                            >
                                                 {message.timestamp.toLocaleTimeString()}
                                             </span>
                                         </div>
@@ -160,17 +267,19 @@ export function AgentChat() {
 
                                         {/* Visualization Block */}
                                         {message.visualization && (
-                                            <div className="mt-6 border border-slate-200 dark:border-slate-800 p-1">
-                                                <div className="bg-slate-50 dark:bg-slate-900 h-64 flex items-center justify-center border border-dashed border-slate-200 dark:border-slate-800">
-                                                    <div className="text-center">
-                                                        <BarChart2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                                                        <div className="font-mono text-xs text-slate-400 uppercase tracking-widest">
-                                                            Rendering Tableau Viz...
-                                                        </div>
-                                                        <div className="font-mono text-[10px] text-slate-300 mt-1">
-                                                            ID: {message.visualization.vizId}
-                                                        </div>
-                                                    </div>
+                                            <div className="mt-6 border border-slate-200 dark:border-slate-800 p-1 shadow-2xl">
+                                                <div className="bg-slate-50 dark:bg-slate-900 h-[500px] border border-slate-200 dark:border-slate-800 overflow-hidden">
+                                                    <EmbeddedViz
+                                                        vizUrl={
+                                                            (typeof window !== 'undefined' && localStorage.getItem('custom_viz_url'))
+                                                                ? localStorage.getItem('custom_viz_url')!
+                                                                : (message.visualization.vizId?.includes('Superstore')
+                                                                    ? `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId}`
+                                                                    : `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`)
+                                                        }
+                                                        height="100%"
+                                                        hideTabs={true}
+                                                    />
                                                 </div>
                                             </div>
                                         )}
@@ -235,8 +344,8 @@ export function AgentChat() {
                                                             onClick={() => handleAddToNarrative(message.id, message.content)}
                                                             disabled={addedToNarrative === message.id}
                                                             className={`flex items-center gap-2 px-3 py-1.5 border transition-all ${addedToNarrative === message.id
-                                                                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-600 dark:text-emerald-400'
-                                                                    : 'bg-brand-500/10 hover:bg-brand-500/20 border-brand-500/30 hover:border-brand-500 text-brand-600 dark:text-brand-400'
+                                                                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-600 dark:text-emerald-400'
+                                                                : 'bg-brand-500/10 hover:bg-brand-500/20 border-brand-500/30 hover:border-brand-500 text-brand-600 dark:text-brand-400'
                                                                 }`}
                                                         >
                                                             {addedToNarrative === message.id ? (

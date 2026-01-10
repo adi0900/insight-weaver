@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
     Sparkles,
@@ -19,12 +19,28 @@ import { AgentChat } from '@/components/AgentChat';
 import { NarrativeTimeline } from '@/components/NarrativeTimeline';
 import { AlertDashboard } from '@/components/AlertDashboard';
 import { DataSourcePanel } from '@/components/DataSourcePanel';
+import { WorkflowModal } from '@/components/WorkflowModal';
+import { ProductGuide } from '@/components/ProductGuide';
+import { Info } from 'lucide-react';
 
 type View = 'chat' | 'narratives' | 'alerts' | 'data';
 
 export default function DashboardPage() {
     const [currentView, setCurrentView] = useState<View>('chat');
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
+    const [isProductGuideOpen, setIsProductGuideOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Auto-open guide on first visit
+    useEffect(() => {
+        setIsMounted(true);
+        const hasSeenGuide = localStorage.getItem('insight-weaver-onboarded');
+        if (!hasSeenGuide) {
+            setIsProductGuideOpen(true);
+            localStorage.setItem('insight-weaver-onboarded', 'true');
+        }
+    }, []);
 
     const navItems: { id: View; label: string; icon: typeof MessageSquare }[] = [
         { id: 'chat', label: 'Concierge', icon: MessageSquare },
@@ -52,6 +68,8 @@ export default function DashboardPage() {
         setCurrentView(id);
         setSidebarOpen(false); // Close sidebar on mobile after selection
     };
+
+    if (!isMounted) return null;
 
     return (
         <div className="h-screen bg-slate-100 dark:bg-neutral-950 flex overflow-hidden font-sans text-slate-900 dark:text-slate-100">
@@ -125,11 +143,19 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="px-4 lg:px-8 hidden lg:block">
-                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4">
-                            System Stats
-                        </span>
-                        <div className="grid grid-cols-1 gap-4">
+                    <div className="px-4 lg:px-8 space-y-4">
+                        <button
+                            onClick={() => setIsProductGuideOpen(true)}
+                            className="w-full flex items-center gap-4 px-0 py-3 text-slate-500 hover:text-brand-500 transition-colors border-b border-transparent hover:border-brand-500"
+                        >
+                            <Info className="w-4 h-4" />
+                            <span className="font-mono text-xs uppercase tracking-widest font-medium">Product Guide</span>
+                        </button>
+
+                        <div className="hidden lg:block">
+                            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4">
+                                System Status
+                            </span>
                             <div className="p-4 border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-900">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-mono text-slate-500 uppercase">Analysis</span>
@@ -191,7 +217,10 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-2 lg:gap-4">
-                        <button className="group flex items-center gap-2 lg:gap-3 px-3 lg:px-6 py-2 lg:py-3 bg-black dark:bg-white text-white dark:text-black font-mono text-[10px] lg:text-xs uppercase tracking-wider hover:bg-brand-600 dark:hover:bg-brand-500 transition-colors">
+                        <button
+                            onClick={() => setIsWorkflowModalOpen(true)}
+                            className="group flex items-center gap-2 lg:gap-3 px-3 lg:px-6 py-2 lg:py-3 bg-black dark:bg-white text-white dark:text-black font-mono text-[10px] lg:text-xs uppercase tracking-wider hover:bg-brand-600 dark:hover:bg-brand-500 transition-colors"
+                        >
                             <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                             <span className="hidden sm:inline">New Workflow</span>
                         </button>
@@ -205,6 +234,16 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </main>
+
+            <WorkflowModal
+                isOpen={isWorkflowModalOpen}
+                onClose={() => setIsWorkflowModalOpen(false)}
+            />
+
+            <ProductGuide
+                isOpen={isProductGuideOpen}
+                onClose={() => setIsProductGuideOpen(false)}
+            />
         </div>
     );
 }

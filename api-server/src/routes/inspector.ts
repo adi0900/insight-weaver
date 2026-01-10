@@ -3,8 +3,57 @@ import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { validateBody } from '../middleware/validate.js';
+import { tableauService } from '../services/tableau/index.js';
 
 export const inspectorRouter = Router();
+
+// ... existing code ...
+
+/**
+ * POST /api/v1/inspector/scan
+ * Trigger a real-time scan for anomalies using Tableau Pulse
+ */
+inspectorRouter.post(
+    '/scan',
+    asyncHandler(async (req: Request, res: Response) => {
+        try {
+            const insights = await tableauService.getPulseInsights();
+
+            // Transform Pulse insights into our Alert format
+            const newAlerts = insights.map((insight: any) => {
+                const id = `alert_${uuidv4().slice(0, 8)}`;
+                const alert: Alert = {
+                    id,
+                    subscriptionId: insight.metricId || 'pulse_gen',
+                    metric: insight.metricName || 'Pulse Metric',
+                    dimension: insight.dimensionValue || 'Global',
+                    previousValue: insight.previousValue || 0,
+                    currentValue: insight.currentValue || 0,
+                    percentChange: insight.percentChange || 0,
+                    severity: insight.severity === 'high' ? 'critical' : 'high',
+                    suggestedNarrative: insight.plainTextInsight || 'No description available.',
+                    relatedVizIds: [],
+                    timestamp: new Date(),
+                    acknowledged: false,
+                };
+                alerts.set(id, alert);
+                return alert;
+            });
+
+            res.json({
+                success: true,
+                count: newAlerts.length,
+                data: newAlerts,
+            });
+        } catch (err) {
+            console.error('[Inspector Scan] Error:', err);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to scan for anomalies',
+            });
+        }
+    })
+);
 
 // ============================================
 // IN-MEMORY STORAGE
@@ -308,5 +357,26 @@ inspectorRouter.get(
                 pollingIntervalMinutes: 15,
             },
         });
+    })
+);
+
+/**
+ * POST /api/v1/inspector/webhook/tableau
+ * Receiver for Tableau Webhooks
+ */
+inspectorRouter.post(
+    '/webhook/tableau',
+    asyncHandler(async (req: Request, res: Response) => {
+        const payload = req.body;
+        console.log('[Tableau Webhook] Received:', payload.event_type);
+
+        // If data refresh succeeded, trigger a scan
+        if (payload.event_type?.includes('Refresh-Success')) {
+            console.log('[Tableau Webhook] Refresh detected. Triggering scan...');
+            // In a real app, this would be handled asynchronously
+            await tableauService.getPulseInsights();
+        }
+
+        res.status(200).json({ received: true });
     })
 );

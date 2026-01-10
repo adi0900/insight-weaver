@@ -60,6 +60,14 @@ export default function RootLayout({
             className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} ${playfair.variable}`}
             suppressHydrationWarning
         >
+            <head>
+                <link rel="icon" href="data:," />
+                <script
+                    type="module"
+                    src="https://public.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"
+                    async
+                ></script>
+            </head>
             <body className="min-h-screen bg-white dark:bg-slate-900">
                 <Providers>{children}</Providers>
             </body>

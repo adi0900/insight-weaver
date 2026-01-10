@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: insight-weaver-api
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: FRONTEND_URL
+        value: https://insight-weaver.vercel.app # Replace with your Vercel URL later

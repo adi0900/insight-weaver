@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     FileText,
     Clock,
@@ -17,9 +17,11 @@ import {
     FileCode,
     History,
     Users,
-    Check
+    Check,
+    RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { narrativesApi } from '@/services/api';
 
 interface Revision {
     id: string;
@@ -40,83 +42,71 @@ interface Narrative {
     collaborators: string[];
 }
 
-const mockNarratives: Narrative[] = [
-    {
-        id: '1',
-        title: 'Q4 2025 Revenue Analysis',
-        status: 'published',
-        createdAt: new Date('2025-12-15'),
-        updatedAt: new Date('2026-01-05'),
-        revisions: [
-            {
-                id: 'r1',
-                hypothesis: 'Revenue increased 15% due to new product launch',
-                confidence: 0.92,
-                authorId: 'user1',
-                timestamp: new Date('2026-01-05'),
-            },
-            {
-                id: 'r2',
-                hypothesis: 'Initial analysis suggests growth in enterprise segment',
-                confidence: 0.78,
-                authorId: 'user1',
-                timestamp: new Date('2025-12-28'),
-            },
-        ],
-        tags: ['revenue', 'quarterly', 'product'],
-        collaborators: ['user1', 'user2'],
-    },
-    {
-        id: '2',
-        title: 'Customer Churn Investigation',
-        status: 'review',
-        createdAt: new Date('2026-01-02'),
-        updatedAt: new Date('2026-01-06'),
-        revisions: [
-            {
-                id: 'r3',
-                hypothesis: 'Churn correlates with support ticket volume',
-                confidence: 0.85,
-                authorId: 'user2',
-                timestamp: new Date('2026-01-06'),
-            },
-        ],
-        tags: ['churn', 'customer success'],
-        collaborators: ['user2'],
-    },
-    {
-        id: '3',
-        title: 'SDG Progress — District 7',
-        status: 'draft',
-        createdAt: new Date('2026-01-06'),
-        updatedAt: new Date('2026-01-06'),
-        revisions: [],
-        tags: ['sustainability', 'government'],
-        collaborators: ['user1'],
-    },
-];
-
 export function NarrativeTimeline() {
+    const [narratives, setNarratives] = useState<Narrative[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedNarrative, setSelectedNarrative] = useState<Narrative | null>(null);
     const [filter, setFilter] = useState<'all' | 'draft' | 'review' | 'published'>('all');
     const [exportingPDF, setExportingPDF] = useState(false);
     const [exportingMD, setExportingMD] = useState(false);
 
-    const handleExportPDF = () => {
+    const fetchNarratives = async () => {
+        try {
+            setIsLoading(true);
+            const response = await narrativesApi.list();
+            if (response.success) {
+                const formatted = response.data.map((n: any) => ({
+                    ...n,
+                    createdAt: new Date(n.createdAt),
+                    updatedAt: new Date(n.updatedAt),
+                    revisions: n.revisions.map((r: any) => ({
+                        ...r,
+                        timestamp: new Date(r.timestamp)
+                    }))
+                }));
+                setNarratives(formatted);
+            }
+        } catch (err) {
+            console.error('[Narratives] Fetch failed:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchNarratives();
+    }, []);
+
+    const handleExportPDF = async () => {
+        if (!selectedNarrative) return;
         setExportingPDF(true);
-        // Simulate PDF generation
-        console.log('Exporting PDF:', selectedNarrative?.title);
-        setTimeout(() => setExportingPDF(false), 1500);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=pdf`;
+
+            // Wait a bit to show success state
+            setTimeout(() => setExportingPDF(false), 2000);
+        } catch (err) {
+            console.error('[Export] PDF failed:', err);
+            setExportingPDF(false);
+        }
     };
 
-    const handleExportMD = () => {
+    const handleExportMD = async () => {
+        if (!selectedNarrative) return;
         setExportingMD(true);
-        // Simulate MD export
-        console.log('Exporting Markdown:', selectedNarrative?.title);
-        setTimeout(() => setExportingMD(false), 1500);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=markdown`;
+
+            setTimeout(() => setExportingMD(false), 2000);
+        } catch (err) {
+            console.error('[Export] MD failed:', err);
+            setExportingMD(false);
+        }
     };
 
-    const filteredNarratives = mockNarratives.filter(
+    const filteredNarratives = narratives.filter(
         (n) => filter === 'all' || n.status === filter
     );
 
@@ -130,6 +120,15 @@ export function NarrativeTimeline() {
                 return <span className="font-mono text-xs uppercase text-green-500 tracking-wider">Published</span>;
         }
     };
+
+    if (isLoading && narratives.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full font-mono text-sm uppercase tracking-widest text-slate-400">
+                <RefreshCw className="w-6 h-6 animate-spin mb-4" />
+                Synchronizing Narrative Hub...
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)] lg:h-[calc(100vh-10rem)] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -228,8 +227,8 @@ export function NarrativeTimeline() {
                                     onClick={handleExportPDF}
                                     disabled={exportingPDF}
                                     className={`flex items-center gap-2 px-3 py-1.5 border transition-all ${exportingPDF
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
-                                            : 'hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent hover:border-slate-200 dark:hover:border-slate-700'
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
+                                        : 'hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent hover:border-slate-200 dark:hover:border-slate-700'
                                         }`}
                                     title="Export as PDF"
                                 >
@@ -240,8 +239,8 @@ export function NarrativeTimeline() {
                                     onClick={handleExportMD}
                                     disabled={exportingMD}
                                     className={`flex items-center gap-2 px-3 py-1.5 border transition-all ${exportingMD
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
-                                            : 'hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent hover:border-slate-200 dark:hover:border-slate-700'
+                                        ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600'
+                                        : 'hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent hover:border-slate-200 dark:hover:border-slate-700'
                                         }`}
                                     title="Export as Markdown"
                                 >

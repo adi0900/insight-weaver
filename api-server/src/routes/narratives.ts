@@ -34,6 +34,29 @@ interface Narrative {
 
 const narratives: Map<string, Narrative> = new Map();
 
+// Seed with sample data for demonstration
+const sampleNarrative: Narrative = {
+    id: 'nar_001',
+    title: 'Q4 2025 Revenue Analysis',
+    status: 'published',
+    createdAt: new Date('2025-12-15'),
+    updatedAt: new Date(),
+    revisions: [
+        {
+            id: 'rev_001',
+            hypothesis: 'Revenue growth of 12% driven by regional expansion in Southeast Asia.',
+            confidence: 0.92,
+            authorId: 'ai_librarian',
+            timestamp: new Date(),
+            evidence: [],
+            sources: ['Tableau: Global Sales']
+        }
+    ],
+    collaborators: ['demo_user'],
+    tags: ['finance', 'revenue', 'q4']
+};
+narratives.set(sampleNarrative.id, sampleNarrative);
+
 // ============================================
 // SCHEMAS
 // ============================================
@@ -276,15 +299,39 @@ narrativesRouter.post(
         }
 
         const { format } = req.body;
-
-        // TODO: Implement actual export
-        // For now, return a mock download URL
-        const downloadUrl = `/api/v1/narratives/${narrative.id}/download?format=${format}`;
+        const result = await exportService.export(narrative as any, format as any);
 
         res.json({
             success: true,
-            downloadUrl,
+            downloadUrl: result.downloadUrl || `/api/v1/narratives/${narrative.id}/download?format=${format}`,
             format,
         });
+    })
+);
+
+/**
+ * GET /api/v1/narratives/:id/download
+ * Download an exported narrative
+ */
+narrativesRouter.get(
+    '/:id/download',
+    asyncHandler(async (req: Request, res: Response) => {
+        const narrative = narratives.get(req.params.id);
+        if (!narrative) return res.status(404).send('Not found');
+
+        const { format } = req.query;
+        const result = await exportService.export(narrative as any, format as any);
+
+        if (format === 'pdf' && result.buffer) {
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${narrative.title.toLowerCase().replace(/\s+/g, '_')}.pdf"`);
+            return res.send(result.buffer);
+        } else if (format === 'markdown' && result.content) {
+            res.setHeader('Content-Type', 'text/markdown');
+            res.setHeader('Content-Disposition', `attachment; filename="${narrative.title.toLowerCase().replace(/\s+/g, '_')}.md"`);
+            return res.send(result.content);
+        }
+
+        res.status(400).send('Invalid format or export failed');
     })
 );

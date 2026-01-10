@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Database,
     Cloud,
@@ -17,6 +17,7 @@ import {
     Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { dataSourcesApi } from '@/services/api';
 
 interface DataSource {
     id: string;
@@ -28,38 +29,31 @@ interface DataSource {
     rowCount: number;
 }
 
-const mockDataSources: DataSource[] = [
-    {
-        id: '1',
-        name: 'Tableau Cloud — Sales Analytics',
-        type: 'tableau',
-        status: 'connected',
-        lastSync: new Date('2026-01-07T10:00:00'),
-        tables: 12,
-        rowCount: 1250000,
-    },
-    {
-        id: '2',
-        name: 'Salesforce Data Cloud',
-        type: 'salesforce',
-        status: 'connected',
-        lastSync: new Date('2026-01-07T09:45:00'),
-        tables: 8,
-        rowCount: 850000,
-    },
-    {
-        id: '3',
-        name: 'Snowflake — Enterprise DW',
-        type: 'snowflake',
-        status: 'syncing',
-        lastSync: new Date('2026-01-07T08:30:00'),
-        tables: 24,
-        rowCount: 5200000,
-    },
-];
-
 export function DataSourcePanel() {
-    const [dataSources] = useState(mockDataSources);
+    const [dataSources, setDataSources] = useState<DataSource[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchDataSources = async () => {
+        try {
+            setIsLoading(true);
+            const result = await dataSourcesApi.list();
+            if (result.success) {
+                const formatted = result.data.map((ds: any) => ({
+                    ...ds,
+                    lastSync: new Date(ds.lastSync)
+                }));
+                setDataSources(formatted);
+            }
+        } catch (err) {
+            console.error('[DataSources] Fetch error:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDataSources();
+    }, []);
 
     const getTypeIcon = (type: DataSource['type']) => {
         switch (type) {
@@ -74,6 +68,15 @@ export function DataSourcePanel() {
         if (count >= 1000) return `${(count / 1000).toFixed(0)}K`;
         return count.toString();
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 font-mono text-sm uppercase tracking-widest text-slate-400">
+                <RefreshCw className="w-6 h-6 animate-spin mb-4" />
+                Synchronizing Data Matrix...
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4 lg:space-y-8 font-sans text-slate-900 dark:text-slate-100">
@@ -168,7 +171,12 @@ export function DataSourcePanel() {
                                 <Clock className="w-4 h-4 text-slate-400" />
                                 <div>
                                     <span className="block text-[10px] font-mono uppercase text-slate-400">Last Sync</span>
-                                    <span className="font-mono text-sm">{source.lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {source.lastSync.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                                    <span
+                                        className="font-mono text-sm"
+                                        suppressHydrationWarning
+                                    >
+                                        {source.lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {source.lastSync.toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                    </span>
                                 </div>
                             </div>
                         </div>

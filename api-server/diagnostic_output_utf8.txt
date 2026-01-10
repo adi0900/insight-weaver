@@ -1,0 +1,55 @@
+﻿[Env] Environment variables loaded
+[Tableau] Initializing with: {
+  hasUrl: true,
+  hasSite: true,
+  hasClient: true,
+  hasSecretId: true,
+  hasSecretValue: true
+}
+[Tableau] Service initialized
+--- Insight Weaver Diagnostic ---
+NODE_ENV: development
+Configured: true
+Testing Tableau Authentication...
+npx : [Tableau] 
+Authentication error: Error: 
+Tableau authentication 
+failed: 401 
+{"error":{"summary":"Signin 
+Error","detail":"Error 
+signing in to Tableau 
+Server","code":"401001"}}
+At line:1 char:1
++ npx tsx src/diagnose.ts > 
+diagnostic_output.txt 2>&1; 
+Get-Content -Ra ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ([Tablea  
+  u] Authe...ode":"401001"   
+ }}:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+    at 
+TableauService.authenticate (
+D:\insight-weaver\api-server\
+src\services\tableau\index.ts
+:175:23)
+    at process.processTicksAn
+dRejections (node:internal/pr
+ocess/task_queues:95:5)
+    at async diagnose (D:\ins
+ight-weaver\api-server\src\di
+agnose.ts:11:23)
+Γ¥î Diagnostic Failed: 
+Tableau authentication 
+failed: 401 
+{"error":{"summary":"Signin 
+Error","detail":"Error 
+signing in to Tableau 
+Server","code":"401001"}}
+--------------------------------
+

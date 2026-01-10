@@ -1,9 +1,9 @@
+import './loadEnv.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 
 import { insightsRouter } from './routes/insights.js';
 import { narrativesRouter } from './routes/narratives.js';
@@ -13,10 +13,6 @@ import { authRouter } from './routes/auth.js';
 import { dataSourcesRouter } from './routes/dataSources.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
-
-// Load environment variables
-dotenv.config({ path: '.env.local' });
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { tableauService } from '../services/tableau/index.js';
 
 export const dataSourcesRouter = Router();
 
 // ============================================
-// IN-MEMORY STORAGE
+// IN-MEMORY STORAGE (for non-Tableau sources/state)
 // ============================================
 
 interface DataSource {
@@ -22,34 +23,6 @@ interface DataSource {
 
 const dataSources: Map<string, DataSource> = new Map();
 
-// Seed sample data sources
-const sampleSources: DataSource[] = [
-    {
-        id: 'ds_001',
-        name: 'Tableau Cloud — Sales Analytics',
-        type: 'tableau',
-        status: 'connected',
-        lastSync: new Date(),
-        tables: 12,
-        rowCount: 1250000,
-        config: {},
-        userId: 'user_demo',
-    },
-    {
-        id: 'ds_002',
-        name: 'Salesforce Data Cloud',
-        type: 'salesforce',
-        status: 'connected',
-        lastSync: new Date(Date.now() - 900000),
-        tables: 8,
-        rowCount: 850000,
-        config: {},
-        userId: 'user_demo',
-    },
-];
-
-sampleSources.forEach((ds) => dataSources.set(ds.id, ds));
-
 // ============================================
 // ROUTES
 // ============================================
@@ -62,9 +35,36 @@ dataSourcesRouter.get(
     '/',
     asyncHandler(async (req: Request, res: Response) => {
         const userId = (req as any).user?.id || 'user_demo';
-        const results = Array.from(dataSources.values())
-            .filter((ds) => ds.userId === userId)
-            .map(({ config, ...ds }) => ds); // Exclude config from list response
+
+        // Fetch live data sources from Tableau
+        const tableauSources = await tableauService.getDataSources();
+
+        // Transform Tableau sources to our internal format
+        const transformedTableau = tableauSources.map(ds => ({
+            id: ds.id,
+            name: ds.name,
+            type: 'tableau' as const,
+            status: 'connected' as const,
+            lastSync: new Date(ds.updatedAt),
+            tables: 12, // Mocked for now
+            rowCount: 1250000, // Mocked for now
+            userId: userId,
+        }));
+
+        // Combine with any other sources (mocked for Salesforce for now)
+        const results = [
+            ...transformedTableau,
+            {
+                id: 'ds_sf_001',
+                name: 'Salesforce Data Cloud',
+                type: 'salesforce' as const,
+                status: 'connected' as const,
+                lastSync: new Date(Date.now() - 900000),
+                tables: 8,
+                rowCount: 850000,
+                userId: userId,
+            }
+        ];
 
         res.json({
             success: true,

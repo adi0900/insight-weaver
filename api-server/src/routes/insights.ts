@@ -31,37 +31,40 @@ insightsRouter.post(
     asyncHandler(async (req: Request, res: Response) => {
         const { query, sessionId, dataSources } = req.body;
 
-        // TODO: Integrate with Tableau NLQ API
-        // For now, return mock data
-        const insightId = `ins_${uuidv4().slice(0, 8)}`;
+        try {
+            const nlqResult = await tableauService.executeNLQ(query);
 
-        // Simulate processing time
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const response = {
-            success: true,
-            data: {
-                insightId,
-                query,
-                visualization: {
-                    vizId: `viz_${uuidv4().slice(0, 8)}`,
-                    embedUrl: `https://tableau.example.com/embed/${insightId}`,
-                    type: 'line_chart',
-                },
-                narrative: `Based on analysis of the query "${query}", the data indicates significant trends in the specified metrics. Further investigation is recommended for actionable insights.`,
-                citations: [
-                    {
-                        source: 'Primary Data Source',
-                        field: 'metric_value',
-                        timeRange: 'Last 90 days',
+            const response = {
+                success: true,
+                data: {
+                    insightId: `ins_${uuidv4().slice(0, 8)}`,
+                    query,
+                    visualization: {
+                        vizId: 'Superstore/Overview', // For hackathon, default to superstore for any query
+                        embedUrl: nlqResult.embedUrl,
+                        type: 'chart',
                     },
-                ],
-                confidence: 0.85 + Math.random() * 0.1,
-                sessionId: sessionId || uuidv4(),
-            },
-        };
+                    narrative: nlqResult.interpretedAs + ". Strategic analysis shows growth opportunities in current segments.",
+                    citations: [
+                        {
+                            source: 'Tableau Cloud: Superstore',
+                            field: 'Sales & Profit',
+                            timeRange: 'Current Year',
+                        },
+                    ],
+                    confidence: nlqResult.confidence,
+                    sessionId: sessionId || uuidv4(),
+                },
+            };
 
-        res.json(response);
+            res.json(response);
+        } catch (err) {
+            console.error('[Insights] Failed to generate insight:', err);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to generate insight'
+            });
+        }
     })
 );
 

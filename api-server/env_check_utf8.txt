@@ -1,0 +1,10 @@
+﻿[Env] Environment variables loaded
+--- Env Var Lengths ---
+TABLEAU_CLOUD_URL: length=36, startsWithSpace=false, endsWithSpace=false, endsWithNewline=false
+ - Value: https://prod-in-a.online.tableau.com
+TABLEAU_SITE_ID: length=27, startsWithSpace=false, endsWithSpace=false, endsWithNewline=false
+TABLEAU_CLIENT_ID: length=36, startsWithSpace=false, endsWithSpace=false, endsWithNewline=false
+TABLEAU_SECRET_ID: length=36, startsWithSpace=false, endsWithSpace=false, endsWithNewline=false
+TABLEAU_SECRET_VALUE: length=44, startsWithSpace=false, endsWithSpace=false, endsWithNewline=false
+------------------------
+

@@ -4,8 +4,35 @@ import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { validateBody } from '../middleware/validate.js';
+import { tableauService } from '../services/tableau/index.js';
 
 export const authRouter = Router();
+
+/**
+ * GET /api/v1/auth/tableau-token
+ * Generate a JWT for Tableau embedding
+ */
+authRouter.get(
+    '/tableau-token',
+    asyncHandler(async (req: Request, res: Response) => {
+        // Use demo email if not authenticated yet for hackathon simplicity
+        const email = (req as any).user?.email || 'nilambhojwaningp@gmail.com';
+
+        try {
+            const token = tableauService.getEmbeddingToken(email);
+            res.json({
+                success: true,
+                token
+            });
+        } catch (err) {
+            console.error('[Auth] Failed to generate Tableau token:', err);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to generate Tableau token'
+            });
+        }
+    })
+);
 
 // ============================================
 // IN-MEMORY USER STORAGE (replace with DB)
@@ -22,9 +49,9 @@ interface User {
 const users: Map<string, User> = new Map();
 
 // Seed demo user
-users.set('demo@insightweaver.io', {
+users.set('nilambhojwaningp@gmail.com', {
     id: 'user_demo',
-    email: 'demo@insightweaver.io',
+    email: 'nilambhojwaningp@gmail.com',
     name: 'Demo User',
     passwordHash: 'demo123', // In production, use bcrypt
 });
