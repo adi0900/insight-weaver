@@ -19,7 +19,7 @@ async function diagnose() {
         const wb = await tableauService.getWorkbooks();
         console.log(`✅ Fetched ${wb.length} Workbooks:`, wb.map(w => w.name));
 
-    } catch (err) {
+    } catch (err: any) {
         console.error('❌ Diagnostic Failed:', err.message);
     }
     console.log('--------------------------------');
