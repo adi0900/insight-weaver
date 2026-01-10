@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -30,6 +31,7 @@ import ArchitecturePipeline from '@/components/ArchitecturePipeline';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HomePage() {
+    const router = useRouter();
     const [isLoaded, setIsLoaded] = useState(false);
     const container = useRef<HTMLDivElement>(null);
     const heroRef = useRef<HTMLDivElement>(null);
@@ -197,7 +199,7 @@ export default function HomePage() {
                                             if (typeof window !== 'undefined') {
                                                 localStorage.setItem('iw_token', 'demo-token');
                                                 localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
-                                                window.location.href = '/dashboard';
+                                                router.push('/dashboard');
                                             }
                                         }}
                                         className="group w-full sm:w-auto px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
