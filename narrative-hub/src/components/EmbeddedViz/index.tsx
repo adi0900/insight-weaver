@@ -32,19 +32,22 @@ export function EmbeddedViz({
                 setIsLoading(true);
                 setError(null);
 
-                // 1. Fetch the Tableau Token from our API
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/auth/tableau-token`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`
+                let token = '';
+
+                // 1. Fetch the Tableau Token ONLY if it's not a public viz
+                if (!vizUrl.includes('public.tableau.com')) {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/auth/tableau-token`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error('Failed to get Tableau authentication token');
                     }
-                });
-                const data = await response.json();
-
-                if (!data.success) {
-                    throw new Error('Failed to get Tableau authentication token');
+                    token = data.token;
                 }
-
-                const token = data.token;
 
                 // 2. Clear previous viz
                 if (containerRef.current) {
