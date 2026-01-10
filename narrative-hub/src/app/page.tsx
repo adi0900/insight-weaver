@@ -191,10 +191,20 @@ export default function HomePage() {
 
                             <div className="mt-10 lg:mt-16 overflow-hidden px-4 lg:px-0">
                                 <div className="reveal-text translate-y-20 opacity-0 flex flex-col sm:flex-row items-center justify-center gap-6">
-                                    <Link href="/dashboard" className="group w-full sm:w-auto px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4">
+                                    <button
+                                        onClick={() => {
+                                            // DEMO LOGIN LOGIC
+                                            if (typeof window !== 'undefined') {
+                                                localStorage.setItem('iw_token', 'demo-token');
+                                                localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                                                window.location.href = '/dashboard';
+                                            }
+                                        }}
+                                        className="group w-full sm:w-auto px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
+                                    >
                                         Start Building
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </Link>
+                                    </button>
                                     <Link href="#demo" className="group w-full sm:w-auto px-12 py-6 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-display font-bold text-lg uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-center gap-4">
                                         <Play className="w-5 h-5" />
                                         Manifesto
