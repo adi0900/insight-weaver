@@ -136,12 +136,18 @@ export default function HomePage() {
 
                     {/* Actions Section */}
                     <div className="flex items-center gap-px bg-slate-200 dark:bg-slate-800 pl-px border-l border-slate-200 dark:border-slate-800 ml-auto">
-                        <Link
-                            href="/login"
+                        <button
+                            onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                    localStorage.setItem('iw_token', 'demo-token');
+                                    localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                                    router.push('/dashboard');
+                                }
+                            }}
                             className="hidden sm:flex h-full items-center px-4 lg:px-8 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 font-mono text-xs uppercase tracking-widest transition-colors"
                         >
                             Log in
-                        </Link>
+                        </button>
                         <Link
                             href="/dashboard"
                             className="h-full flex items-center px-6 lg:px-10 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 font-display font-bold text-sm lg:text-base uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-colors"
@@ -532,10 +538,19 @@ export default function HomePage() {
                         </p>
 
                         <div className="fade-up flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <Link href="/dashboard" className="group w-full sm:w-auto px-12 py-6 bg-white text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4">
+                            <button
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        localStorage.setItem('iw_token', 'demo-token');
+                                        localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                                        router.push('/dashboard');
+                                    }
+                                }}
+                                className="group w-full sm:w-auto px-12 py-6 bg-white text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
+                            >
                                 Launch Console
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                            </Link>
+                            </button>
                             <Link href="#demo" className="group w-full sm:w-auto px-12 py-6 bg-transparent border border-white/20 text-white font-display font-bold text-lg uppercase tracking-wider hover:bg-white/10 transition-colors flex items-center justify-center gap-4">
                                 <Play className="w-5 h-5" />
                                 Watch Demo
