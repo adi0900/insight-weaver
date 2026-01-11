@@ -38,13 +38,14 @@ export default function HomePage() {
     const dashboardRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
-        if (!isLoaded) return;
+        if (!isLoaded || !container.current) return;
 
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
         // Hero Sequence
-        if (document.querySelectorAll('.reveal-text').length > 0) {
-            tl.to('.reveal-text', {
+        const revealTexts = container.current.querySelectorAll('.reveal-text');
+        if (revealTexts.length > 0) {
+            tl.to(revealTexts, {
                 y: 0,
                 opacity: 1,
                 duration: 1.2,
@@ -53,8 +54,9 @@ export default function HomePage() {
             });
         }
 
-        if (document.querySelector('.hero-image-wrapper')) {
-            tl.to('.hero-image-wrapper', {
+        const heroImage = container.current.querySelector('.hero-image-wrapper');
+        if (heroImage) {
+            tl.to(heroImage, {
                 scale: 1,
                 opacity: 1,
                 duration: 1.5,
@@ -63,7 +65,8 @@ export default function HomePage() {
         }
 
         // Scroll Animations
-        gsap.utils.toArray('.fade-up').forEach((el: any) => {
+        const fadeUps = container.current.querySelectorAll('.fade-up');
+        fadeUps.forEach((el: any) => {
             gsap.fromTo(el,
                 { y: 50, opacity: 0 },
                 {
@@ -79,18 +82,28 @@ export default function HomePage() {
         });
 
         // Parallax Dashboard
-        gsap.to(dashboardRef.current, {
-            yPercent: -20,
-            ease: 'none',
-            scrollTrigger: {
-                trigger: heroRef.current,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true
-            }
-        });
+        if (dashboardRef.current && heroRef.current) {
+            gsap.to(dashboardRef.current, {
+                yPercent: -20,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: heroRef.current,
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: true
+                }
+            });
+        }
 
     }, { scope: container, dependencies: [isLoaded] });
+
+    const handleDemoAuth = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('iw_token', 'demo-token');
+            localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+            router.push('/dashboard');
+        }
+    };
 
     return (
         <div ref={container} className="min-h-screen bg-surface selection:bg-brand-500 selection:text-white font-sans text-slate-900 overflow-x-hidden">
@@ -142,28 +155,16 @@ export default function HomePage() {
                     {/* Actions Section */}
                     <div className="flex items-center gap-px bg-slate-200 dark:bg-slate-800 pl-px border-l border-slate-200 dark:border-slate-800 ml-auto">
                         <button
-                            onClick={() => {
-                                if (typeof window !== 'undefined') {
-                                    localStorage.setItem('iw_token', 'demo-token');
-                                    localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
-                                    router.push('/dashboard');
-                                }
-                            }}
+                            onClick={handleDemoAuth}
                             className="hidden sm:flex h-full items-center px-4 lg:px-8 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 font-mono text-xs uppercase tracking-widest transition-colors"
                         >
-                            Log in
+                            Log in [DEMO]
                         </button>
                         <button
-                            onClick={() => {
-                                if (typeof window !== 'undefined') {
-                                    localStorage.setItem('iw_token', 'demo-token');
-                                    localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
-                                    router.push('/dashboard');
-                                }
-                            }}
+                            onClick={handleDemoAuth}
                             className="h-full flex items-center px-6 lg:px-10 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 font-display font-bold text-sm lg:text-base uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-colors"
                         >
-                            Start
+                            Start Demo
                         </button>
                     </div>
 
@@ -211,17 +212,10 @@ export default function HomePage() {
                             <div className="mt-10 lg:mt-16 overflow-hidden px-4 lg:px-0">
                                 <div className="reveal-text translate-y-20 opacity-0 flex flex-col sm:flex-row items-center justify-center gap-6">
                                     <button
-                                        onClick={() => {
-                                            // DEMO LOGIN LOGIC
-                                            if (typeof window !== 'undefined') {
-                                                localStorage.setItem('iw_token', 'demo-token');
-                                                localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
-                                                router.push('/dashboard');
-                                            }
-                                        }}
+                                        onClick={handleDemoAuth}
                                         className="group w-full sm:w-auto px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
                                     >
-                                        Start Building
+                                        Start Building Demo
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                     <Link href="#demo" className="group w-full sm:w-auto px-12 py-6 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-display font-bold text-lg uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-center gap-4">

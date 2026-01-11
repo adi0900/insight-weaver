@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+  async redirects() {
+    return [
+      {
+        source: '/login',
+        destination: '/dashboard',
+        permanent: false,
+      },
+    ]
+  },
+
   // Environment variables available to the browser
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
