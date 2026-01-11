@@ -156,15 +156,9 @@ export default function HomePage() {
                     <div className="flex items-center gap-px bg-slate-200 dark:bg-slate-800 pl-px border-l border-slate-200 dark:border-slate-800 ml-auto">
                         <button
                             onClick={handleDemoAuth}
-                            className="hidden sm:flex h-full items-center px-4 lg:px-8 bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 font-mono text-xs uppercase tracking-widest transition-colors"
-                        >
-                            Log in [DEMO]
-                        </button>
-                        <button
-                            onClick={handleDemoAuth}
                             className="h-full flex items-center px-6 lg:px-10 bg-slate-950 dark:bg-slate-100 text-white dark:text-slate-950 font-display font-bold text-sm lg:text-base uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-colors"
                         >
-                            Start Demo
+                            Access Console
                         </button>
                     </div>
 
@@ -215,7 +209,7 @@ export default function HomePage() {
                                         onClick={handleDemoAuth}
                                         className="group w-full sm:w-auto px-12 py-6 bg-slate-950 dark:bg-white text-white dark:text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 dark:hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
                                     >
-                                        Start Building Demo
+                                        Access Demo Console
                                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                     <Link href="#demo" className="group w-full sm:w-auto px-12 py-6 bg-transparent border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-display font-bold text-lg uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-white/5 transition-colors flex items-center justify-center gap-4">

@@ -22,8 +22,8 @@ export function authMiddleware(
     const authHeader = req.headers.authorization;
     console.log(`[Auth Debug] NODE_ENV: ${process.env.NODE_ENV}, authHeader: ${authHeader}`);
 
-    // Allow requests without auth in development for easier testing
-    if ((process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) && !authHeader) {
+    // Allow requests with "demo-token" or no auth in development for easier testing
+    if (authHeader === 'Bearer demo-token' || ((process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) && !authHeader)) {
         (req as any).user = {
             id: 'user_demo',
             email: 'nilambhojwaningp@gmail.com',
@@ -57,7 +57,7 @@ export function authMiddleware(
             console.log('[Auth] Invalid token but in development, falling back to demo user');
             (req as any).user = {
                 id: 'user_demo',
-                email: 'demo@insightweaver.io',
+                email: 'nilambhojwaningp@gmail.com',
             };
             return next();
         }

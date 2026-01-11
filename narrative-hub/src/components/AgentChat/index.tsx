@@ -35,14 +35,19 @@ export function AgentChat() {
         },
     ]);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [customVizUrl, setCustomVizUrl] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [addedToNarrative, setAddedToNarrative] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+        if (typeof window !== 'undefined') {
+            setCustomVizUrl(localStorage.getItem('custom_viz_url'));
+        }
+    }, []);
 
     const handleAddToNarrative = async (id: string, content: string) => {
         try {
@@ -112,18 +117,17 @@ export function AgentChat() {
                 let url = input.replace('/set-viz ', '').trim();
 
                 // Auto-fix URL format: Convert browser URL to embed URL
-                // From: .../#/site/my-site/views/...
-                // To:   .../t/my-site/views/...
                 if (url.includes('/#/site/')) {
                     url = url.replace('/#/site/', '/t/');
                 }
 
                 localStorage.setItem('custom_viz_url', url);
+                setCustomVizUrl(url);
 
                 const assistantMessage: Message = {
                     id: `msg-a-conf-${Date.now()}`,
                     role: 'assistant',
-                    content: `CONFIGURATION UPDATED: Visualization target set to "${url}". \n\nPlease ask your question again to see this dashboard.`,
+                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nYour next analytical question will now use this dashboard for visualization.`,
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
@@ -271,8 +275,8 @@ export function AgentChat() {
                                                 <div className="bg-slate-50 dark:bg-slate-900 h-[500px] border border-slate-200 dark:border-slate-800 overflow-hidden">
                                                     <EmbeddedViz
                                                         vizUrl={
-                                                            (typeof window !== 'undefined' && localStorage.getItem('custom_viz_url'))
-                                                                ? localStorage.getItem('custom_viz_url')!
+                                                            customVizUrl
+                                                                ? customVizUrl
                                                                 : (message.visualization.vizId?.includes('Superstore')
                                                                     ? `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId}`
                                                                     : `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`)
