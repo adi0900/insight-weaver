@@ -70,7 +70,7 @@ export default function BrutalistLoader({ onLoadingComplete }: { onLoadingComple
                             transition={{ delay: 0.2 }}
                             className="font-mono text-xs text-slate-500 uppercase tracking-widest"
                         >
-                            Ver 2.0.4
+                            Ver 1.0.1-PROD
                         </motion.div>
                     </div>
 

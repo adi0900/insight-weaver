@@ -127,7 +127,7 @@ export function AgentChat() {
                 const assistantMessage: Message = {
                     id: `msg-a-conf-${Date.now()}`,
                     role: 'assistant',
-                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nYour next analytical question will now use this dashboard for visualization.`,
+                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nI am now weaving this dashboard into our analytical workspace. Ask your first question to see the results!`,
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, assistantMessage]);

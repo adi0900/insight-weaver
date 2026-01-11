@@ -14,7 +14,8 @@ import {
     X,
     Plus,
     Activity,
-    LogOut
+    LogOut,
+    Info
 } from 'lucide-react';
 import { AgentChat } from '@/components/AgentChat';
 import { NarrativeTimeline } from '@/components/NarrativeTimeline';
@@ -22,7 +23,6 @@ import { AlertDashboard } from '@/components/AlertDashboard';
 import { DataSourcePanel } from '@/components/DataSourcePanel';
 import { WorkflowModal } from '@/components/WorkflowModal';
 import { ProductGuide } from '@/components/ProductGuide';
-import { Info } from 'lucide-react';
 
 type View = 'chat' | 'narratives' | 'alerts' | 'data';
 
@@ -36,6 +36,18 @@ export default function DashboardPage() {
     // Auto-open guide on first visit
     useEffect(() => {
         setIsMounted(true);
+
+        // SELF-HEALING AUTH: Ensure demo token is set even if landing page was cached
+        if (typeof window !== 'undefined') {
+            if (!localStorage.getItem('iw_token')) {
+                console.log('[Auth] Restoring demo session...');
+                localStorage.setItem('iw_token', 'demo-token');
+            }
+            if (!localStorage.getItem('custom_viz_url')) {
+                localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+            }
+        }
+
         const hasSeenGuide = localStorage.getItem('insight-weaver-onboarded');
         if (!hasSeenGuide) {
             setIsProductGuideOpen(true);
@@ -83,11 +95,7 @@ export default function DashboardPage() {
                     />
                 )}
 
-                {/* 
-                  ========================================
-                  SIDEBAR (Responsive - Hidden on mobile, toggleable)
-                  ========================================
-                */}
+                {/* Sidebar */}
                 <aside className={`
                     fixed lg:relative inset-y-0 left-0 z-40
                     w-72 lg:w-80 flex-shrink-0 flex flex-col 
@@ -106,7 +114,6 @@ export default function DashboardPage() {
                                 <span className="font-display font-bold text-base lg:text-lg leading-none uppercase tracking-tighter">Insight<br />Weaver</span>
                             </div>
                         </Link>
-                        {/* Close button for mobile */}
                         <button
                             onClick={() => setSidebarOpen(false)}
                             className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-neutral-900 transition-colors"
@@ -115,10 +122,10 @@ export default function DashboardPage() {
                         </button>
                     </div>
 
-                    {/* Main Navigation */}
-                    <nav className="flex-1 py-6 lg:py-8 px-0 overflow-y-auto custom-scrollbar">
+                    {/* Navigation */}
+                    <nav className="flex-1 py-6 lg:py-8 px-0 overflow-y-auto">
                         <div className="px-4 lg:px-8 mb-6">
-                            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4">
+                            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4 text-left">
                                 Main Modules
                             </span>
                             <div className="space-y-1">
@@ -155,7 +162,7 @@ export default function DashboardPage() {
                             </button>
 
                             <div className="hidden lg:block">
-                                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4">
+                                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600 block mb-4 text-left">
                                     System Status
                                 </span>
                                 <div className="p-4 border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-900">
@@ -170,9 +177,9 @@ export default function DashboardPage() {
                         </div>
                     </nav>
 
-                    {/* User Section / Footer */}
+                    {/* User Profile / Exit */}
                     <div className="p-4 lg:p-8 border-t border-slate-200 dark:border-neutral-800">
-                        <div className="flex items-center gap-3 lg:gap-4 mb-4">
+                        <div className="flex items-center gap-3 lg:gap-4 mb-4 text-left">
                             <div className="w-10 h-10 bg-slate-100 dark:bg-neutral-900 flex items-center justify-center border border-slate-200 dark:border-neutral-800">
                                 <User className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                             </div>
@@ -194,23 +201,17 @@ export default function DashboardPage() {
                     </div>
                 </aside>
 
-                {/* 
-                  ========================================
-                  MAIN CONTENT (Canvas)
-                  ========================================
-                */}
+                {/* Main Content Area */}
                 <main className="flex-1 flex flex-col min-w-0 bg-slate-100 dark:bg-neutral-950">
-                    {/* Header (Responsive) */}
                     <header className="h-16 lg:h-24 flex-shrink-0 border-b border-slate-200 dark:border-neutral-800 flex items-center justify-between px-4 lg:px-10 bg-white dark:bg-black">
                         <div className="flex items-center gap-4">
-                            {/* Hamburger Menu for mobile */}
                             <button
                                 onClick={() => setSidebarOpen(true)}
                                 className="lg:hidden p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-neutral-900 transition-colors"
                             >
                                 <Menu className="w-5 h-5" />
                             </button>
-                            <div>
+                            <div className="text-left">
                                 <div className="flex items-center gap-2 lg:gap-3 mb-0.5 lg:mb-1">
                                     <div className="w-2 h-2 bg-brand-500 animate-pulse rounded-full" />
                                     <span className="font-mono text-[10px] lg:text-xs uppercase tracking-[0.15em] lg:tracking-[0.2em] text-slate-400">Live</span>
@@ -219,7 +220,7 @@ export default function DashboardPage() {
                                     {currentView === 'chat' && 'Concierge'}
                                     {currentView === 'narratives' && 'Narratives'}
                                     {currentView === 'alerts' && 'Alerts'}
-                                    {currentView === 'data' && 'Data'}
+                                    {currentView === 'data' && 'Data Source'}
                                 </h1>
                             </div>
                         </div>
@@ -235,8 +236,7 @@ export default function DashboardPage() {
                         </div>
                     </header>
 
-                    {/* Content Render Area */}
-                    <div className="flex-1 overflow-hidden p-0">
+                    <div className="flex-1 overflow-hidden">
                         <div className="h-full overflow-y-auto">
                             {renderView()}
                         </div>
