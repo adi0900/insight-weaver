@@ -128,7 +128,6 @@ class TableauService {
         return jwt.sign(payload, this.config.secretValue, {
             algorithm: 'HS256',
             keyid: this.config.secretId,
-            issuer: this.config.clientId,
         });
     }
 
