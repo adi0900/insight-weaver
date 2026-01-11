@@ -181,7 +181,13 @@ export default function DashboardPage() {
                                 <div className="font-mono text-[10px] text-slate-400">ADMINISTRATOR</div>
                             </div>
                         </div>
-                        <button className="w-full flex items-center justify-center gap-2 py-3 border border-slate-200 dark:border-neutral-800 text-xs font-mono uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-neutral-900 transition-colors">
+                        <button
+                            onClick={() => {
+                                localStorage.clear();
+                                window.location.href = '/';
+                            }}
+                            className="w-full flex items-center justify-center gap-2 py-3 border border-slate-200 dark:border-neutral-800 text-xs font-mono uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-neutral-900 transition-colors"
+                        >
                             <LogOut className="w-3 h-3" />
                             Sign Out
                         </button>
