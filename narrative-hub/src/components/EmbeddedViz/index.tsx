@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Maximize2, RefreshCw } from 'lucide-react';
+import { getApiBaseUrl } from '@/utils/env';
 
 interface EmbeddedVizProps {
     vizUrl: string;
@@ -36,17 +37,27 @@ export function EmbeddedViz({
 
                 // 1. Fetch the Tableau Token ONLY if it's not a public viz
                 if (!vizUrl.includes('public.tableau.com')) {
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/auth/tableau-token`, {
+                    const apiUrl = `${getApiBaseUrl()}/api/v1/auth/tableau-token`;
+                    console.log(`[EmbeddedViz] Fetching token from: ${apiUrl}`);
+
+                    const response = await fetch(apiUrl, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`
                         }
                     });
-                    const data = await response.json();
 
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error(`[EmbeddedViz] Token fetch failed (${response.status}): ${errorText}`);
+                        throw new Error(`Auth failed (${response.status}). View console for details.`);
+                    }
+
+                    const data = await response.json();
                     if (!data.success) {
-                        throw new Error('Failed to get Tableau authentication token');
+                        throw new Error(data.error || 'Failed to get Tableau authentication token');
                     }
                     token = data.token;
+                    console.log('[EmbeddedViz] Token received successfully');
                 }
 
                 // 2. Clear previous viz

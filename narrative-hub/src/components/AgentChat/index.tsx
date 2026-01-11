@@ -14,6 +14,7 @@ interface Message {
     visualization?: {
         type: 'chart' | 'table';
         vizId?: string;
+        embedUrl?: string;
     };
     citations?: {
         source: string;
@@ -127,8 +128,13 @@ export function AgentChat() {
                 const assistantMessage: Message = {
                     id: `msg-a-conf-${Date.now()}`,
                     role: 'assistant',
-                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nI am now weaving this dashboard into our analytical workspace. Ask your first question to see the results!`,
+                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nI am now weaving this dashboard into our analytical workspace. See the live preview below!`,
                     timestamp: new Date(),
+                    visualization: {
+                        vizId: 'custom-viz',
+                        embedUrl: url,
+                        type: 'chart'
+                    }
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
                 setIsLoading(false);

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { inspectorApi, narrativesApi } from '@/services/api';
+import { getApiBaseUrl } from '@/utils/env';
 
 interface Alert {
     id: string;
@@ -104,7 +105,7 @@ export function AlertDashboard() {
         try {
             // Trigger scan via POST /api/v1/inspector/scan
             // Note: inspectorApi doesn't have scan yet, let's add it or use request
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/inspector/scan`, {
+            const response = await fetch(`${getApiBaseUrl()}/api/v1/inspector/scan`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`

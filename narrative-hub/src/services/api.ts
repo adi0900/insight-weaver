@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { getApiBaseUrl } from '@/utils/env';
+
+const API_BASE_URL = getApiBaseUrl();
 
 interface RequestConfig extends RequestInit {
     timeout?: number;
@@ -36,7 +38,8 @@ async function request<T>(
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const fullUrl = `${API_BASE_URL}${endpoint}`;
+        const response = await fetch(fullUrl, {
             ...fetchConfig,
             signal: controller.signal,
             headers,
@@ -46,6 +49,10 @@ async function request<T>(
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => null);
+            console.error(`[API Error] ${fullUrl}`, {
+                status: response.status,
+                data: errorData
+            });
             throw new ApiError(
                 errorData?.message || `Request failed with status ${response.status}`,
                 response.status,
@@ -57,6 +64,10 @@ async function request<T>(
     } catch (error) {
         clearTimeout(timeoutId);
         if (error instanceof ApiError) throw error;
+
+        const fullUrl = `${API_BASE_URL}${endpoint}`;
+        console.error(`[Network Error] ${fullUrl}`, error);
+
         if (error instanceof Error && error.name === 'AbortError') {
             throw new ApiError('Request timeout', 408);
         }

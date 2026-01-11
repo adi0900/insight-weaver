@@ -109,9 +109,16 @@ class TableauService {
             iss: this.config.clientId,
             sub: userEmail,
             aud: 'tableau',
-            exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour for better UX
+            exp: Math.floor(Date.now() / 1000) + (10 * 60), // 10 minutes for signin
             jti: uuidv4(),
-            scp: ['tableau:views:embed'],
+            scp: [
+                'tableau:views:embed',
+                'tableau:views:embed_authoring',
+                'tableau:content:read',
+                'tableau:insights:read',
+                'tableau:metrics:read',
+                'tableau:pulse:read'
+            ],
         };
 
         return jwt.sign(payload, this.config.secretValue, {
@@ -146,11 +153,15 @@ class TableauService {
             return this.accessToken;
         }
 
-        const jwt = this.generateJWT(userEmail);
+        const jwtToken = this.generateJWT(userEmail);
+        const siteContentUrl = process.env.TABLEAU_CONTENT_URL || this.config.siteId;
 
         try {
             const apiVersion = '3.22';
-            const response = await fetch(`${this.config.cloudUrl}/api/${apiVersion}/auth/signin`, {
+            const signInUrl = `${this.config.cloudUrl}/api/${apiVersion}/auth/signin`;
+            console.log(`[Tableau] Signing in to: ${signInUrl} for site: ${siteContentUrl}`);
+
+            const response = await fetch(signInUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,9 +169,9 @@ class TableauService {
                 },
                 body: JSON.stringify({
                     credentials: {
-                        jwt: jwt,
+                        jwt: jwtToken,
                         site: {
-                            contentUrl: process.env.TABLEAU_CONTENT_URL || this.config.siteId
+                            contentUrl: siteContentUrl
                         }
                     }
                 })
@@ -168,6 +179,7 @@ class TableauService {
 
             if (!response.ok) {
                 const errorText = await response.text();
+                console.error(`[Tableau] Signin failed (${response.status}): ${errorText}`);
                 throw new Error(`Tableau authentication failed: ${response.status} ${errorText}`);
             }
 

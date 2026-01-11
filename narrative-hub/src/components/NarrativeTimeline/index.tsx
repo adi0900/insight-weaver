@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { narrativesApi } from '@/services/api';
+import { getApiBaseUrl } from '@/utils/env';
 
 interface Revision {
     id: string;
@@ -81,7 +82,7 @@ export function NarrativeTimeline() {
         if (!selectedNarrative) return;
         setExportingPDF(true);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const apiUrl = getApiBaseUrl();
             window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=pdf`;
 
             // Wait a bit to show success state
@@ -96,7 +97,7 @@ export function NarrativeTimeline() {
         if (!selectedNarrative) return;
         setExportingMD(true);
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const apiUrl = getApiBaseUrl();
             window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=markdown`;
 
             setTimeout(() => setExportingMD(false), 2000);
