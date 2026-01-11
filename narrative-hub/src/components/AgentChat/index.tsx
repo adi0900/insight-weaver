@@ -26,15 +26,7 @@ interface Message {
 
 export function AgentChat() {
     const [isMounted, setIsMounted] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: '1',
-            role: 'assistant',
-            content:
-                "SYSTEM READY.\nInput query for data analysis. Concierge v2.0 is online. \n\nI am connected to your Tableau Cloud environment as an AI Librarian. How can I help you explore your data today?",
-            timestamp: new Date(),
-        },
-    ]);
+    const [messages, setMessages] = useState<Message[]>([]);
 
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +40,17 @@ export function AgentChat() {
         if (typeof window !== 'undefined') {
             setCustomVizUrl(localStorage.getItem('custom_viz_url'));
         }
+
+        // Add initial greeting on client-side only to avoid hydration mismatch
+        setMessages([
+            {
+                id: '1',
+                role: 'assistant',
+                content:
+                    "SYSTEM READY.\nInput query for data analysis. Concierge v2.0 is online. \n\nI am connected to your Tableau Cloud environment as an AI Librarian. How can I help you explore your data today?",
+                timestamp: new Date(),
+            },
+        ]);
     }, []);
 
     const handleAddToNarrative = async (id: string, content: string) => {
@@ -281,11 +284,12 @@ export function AgentChat() {
                                                 <div className="bg-slate-50 dark:bg-slate-900 h-[500px] border border-slate-200 dark:border-slate-800 overflow-hidden">
                                                     <EmbeddedViz
                                                         vizUrl={
-                                                            customVizUrl
+                                                            message.visualization.embedUrl ||
+                                                            (customVizUrl && message.visualization.vizId === 'custom-viz'
                                                                 ? customVizUrl
                                                                 : (message.visualization.vizId?.includes('Superstore')
                                                                     ? `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId}`
-                                                                    : `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`)
+                                                                    : `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`))
                                                         }
                                                         height="100%"
                                                         hideTabs={true}
