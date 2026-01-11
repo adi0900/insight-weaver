@@ -4,19 +4,19 @@ export const getApiBaseUrl = () => {
         return process.env.NEXT_PUBLIC_API_URL;
     }
 
-    // Priority 2: In browser, detect if we're on a Vercel deployment and try to guess the API URL
-    // (This is a fallback for when people forget to set the env var)
+    // Priority 2: In browser, detect if we're on a Vercel deployment
     if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-        if (hostname.includes('vercel.app')) {
-            // If the API server is also on Vercel, it might be on a different subdomain or the same one
-            // But usually for separate repos, they have different URLs.
-            // For now, we'll just log a helpful hint.
-            console.warn('[Env] NEXT_PUBLIC_API_URL is missing. API calls to localhost will fail in production.');
+
+        // If we are on Vercel, and haven't specified an API URL, we can't guess easily 
+        // unless it's a monorepo setup where the API is also on the same host or a relative path.
+        // For now, let's look for common patterns.
+        if (hostname.includes('vercel.app') && !hostname.includes('localhost')) {
+            console.warn('[Env] Running on Vercel without NEXT_PUBLIC_API_URL.');
         }
     }
 
-    return 'http://localhost:3001';
+    return 'https://insight-weaver-api.onrender.com'; // Defaulting to your Render backend URL if possible
 };
 
 export const getTableauHost = () => {

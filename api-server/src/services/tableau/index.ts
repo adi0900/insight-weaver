@@ -86,6 +86,10 @@ class TableauService {
             return;
         }
 
+        if (!process.env.TABLEAU_USER_EMAIL) {
+            console.warn('[Tableau] Missing TABLEAU_USER_EMAIL, using default nilambhojwaningp@gmail.com');
+        }
+
         this.config = {
             cloudUrl,
             siteId,
@@ -312,11 +316,11 @@ class TableauService {
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
         const siteUrl = this.config?.cloudUrl || 'https://prod-in-a.online.tableau.com';
-        const siteContentUrl = process.env.TABLEAU_CONTENT_URL || this.config?.siteId || 'default';
+        const siteId = this.config?.siteId || 'nilambhojwaningp-2072bfe41a';
 
         return {
             vizId: 'Superstore/Overview',
-            embedUrl: `${siteUrl}/t/${siteContentUrl}/views/Superstore/Overview`,
+            embedUrl: `${siteUrl}/t/${siteId}/views/Superstore/Overview`,
             query,
             interpretedAs: `Analyzing regional sales performance for "${query}" in Superstore`,
             confidence: 0.94,

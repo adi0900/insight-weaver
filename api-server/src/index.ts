@@ -13,6 +13,7 @@ import { authRouter } from './routes/auth.js';
 import { dataSourcesRouter } from './routes/dataSources.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
+import { tableauService } from './services/tableau/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,6 +33,7 @@ const allowedOrigins = [
     process.env.FRONTEND_URL,
     'http://localhost:3000',
     'http://localhost:3001',
+    'https://insight-weaver-frontend.vercel.app',
     'https://insight-weaver-woad.vercel.app',
     /\.vercel\.app$/ // Allow all Vercel previews
 ].filter(Boolean) as (string | RegExp)[];
@@ -79,12 +81,21 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // HEALTH CHECK
 // ============================================
 
+// Health check endpoint
 app.get('/health', (req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         version: process.env.npm_package_version || '0.1.0',
         environment: process.env.NODE_ENV || 'development',
+        tableau: {
+            configured: tableauService.isConfigured(),
+            siteId: process.env.TABLEAU_SITE_ID ? 'CONNECTED' : 'MISSING',
+            cloudUrl: process.env.TABLEAU_CLOUD_URL ? 'PRESENT' : 'MISSING',
+            clientId: process.env.TABLEAU_CLIENT_ID ? 'PRESENT' : 'MISSING',
+            secretId: process.env.TABLEAU_SECRET_ID ? 'PRESENT' : 'MISSING',
+            secretValue: process.env.TABLEAU_SECRET_VALUE ? 'PRESENT' : 'MISSING',
+        }
     });
 });
 
