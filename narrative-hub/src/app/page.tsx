@@ -597,7 +597,7 @@ export default function HomePage() {
 
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-slate-800">
                         <div className="text-slate-500 text-sm font-mono">
-                            © 2026 Insight Weaver. All rights reserved.
+                            © 2026 Insight Weaver. v1.0.1-fixed
                         </div>
                         <div className="flex gap-8">
                             {['Twitter', 'GitHub', 'LinkedIn', 'Discord'].map(social => (
