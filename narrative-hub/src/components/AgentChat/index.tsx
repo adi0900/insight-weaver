@@ -5,6 +5,7 @@ import { Send, Sparkles, Loader2, Plus, Copy, Check, Terminal, CornerDownLeft, B
 import { motion, AnimatePresence } from 'framer-motion';
 import { EmbeddedViz } from '@/components/EmbeddedViz';
 import { insightsApi, dataSourcesApi, narrativesApi } from '@/services/api';
+import { getApiBaseUrl, getTableauHost, getTableauSite } from '@/utils/env';
 
 interface Message {
     id: string;
@@ -288,8 +289,8 @@ export function AgentChat() {
                                                             (customVizUrl && message.visualization.vizId === 'custom-viz'
                                                                 ? customVizUrl
                                                                 : (message.visualization.vizId?.includes('Superstore')
-                                                                    ? `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId}`
-                                                                    : `https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`))
+                                                                    ? `${getTableauHost()}/t/${getTableauSite()}/views/${message.visualization.vizId}`
+                                                                    : `${getTableauHost()}/t/${getTableauSite()}/views/${message.visualization.vizId || 'Regional/GlobalTemperatures'}`))
                                                         }
                                                         height="100%"
                                                         hideTabs={true}

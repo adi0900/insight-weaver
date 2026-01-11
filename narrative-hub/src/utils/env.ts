@@ -18,3 +18,12 @@ export const getApiBaseUrl = () => {
 
     return 'http://localhost:3001';
 };
+
+export const getTableauHost = () => {
+    return process.env.NEXT_PUBLIC_TABLEAU_HOST || 'https://prod-in-a.online.tableau.com';
+};
+
+export const getTableauSite = () => {
+    return process.env.NEXT_PUBLIC_TABLEAU_SITE_ID || 'nilambhojwaningp-2072bfe41a';
+};
+
