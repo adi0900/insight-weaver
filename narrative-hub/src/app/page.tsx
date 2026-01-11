@@ -43,19 +43,24 @@ export default function HomePage() {
         const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
         // Hero Sequence
-        tl.to('.reveal-text', {
-            y: 0,
-            opacity: 1,
-            duration: 1.2,
-            stagger: 0.15,
-            ease: 'power4.out',
-        })
-            .to('.hero-image-wrapper', {
+        if (document.querySelectorAll('.reveal-text').length > 0) {
+            tl.to('.reveal-text', {
+                y: 0,
+                opacity: 1,
+                duration: 1.2,
+                stagger: 0.15,
+                ease: 'power4.out',
+            });
+        }
+
+        if (document.querySelector('.hero-image-wrapper')) {
+            tl.to('.hero-image-wrapper', {
                 scale: 1,
                 opacity: 1,
                 duration: 1.5,
                 ease: 'expo.out',
             }, '-=1');
+        }
 
         // Scroll Animations
         gsap.utils.toArray('.fade-up').forEach((el: any) => {
@@ -544,10 +549,19 @@ export default function HomePage() {
                         </p>
 
                         <div className="fade-up flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <Link href="/dashboard" className="group w-full sm:w-auto px-12 py-6 bg-white text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4">
+                            <button
+                                onClick={() => {
+                                    if (typeof window !== 'undefined') {
+                                        localStorage.setItem('iw_token', 'demo-token');
+                                        localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                                        router.push('/dashboard');
+                                    }
+                                }}
+                                className="group w-full sm:w-auto px-12 py-6 bg-white text-black font-display font-bold text-lg uppercase tracking-wider hover:bg-brand-500 hover:text-white transition-all duration-500 flex items-center justify-center gap-4"
+                            >
                                 Launch Console
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                            </Link>
+                            </button>
                             <Link href="#demo" className="group w-full sm:w-auto px-12 py-6 bg-transparent border border-white/20 text-white font-display font-bold text-lg uppercase tracking-wider hover:bg-white/10 transition-colors flex items-center justify-center gap-4">
                                 <Play className="w-5 h-5" />
                                 Watch Demo
