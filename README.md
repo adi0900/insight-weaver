@@ -34,7 +34,7 @@ docker-compose up --build
 
 ## 📋 Overview
 
-Insight Weaver bridges the gap between raw data and actionable insights. Built on **Tableau Cloud APIs** and **Salesforce Data Cloud**, it transforms fragmented enterprise data into AI-driven narratives.
+Insight Weaver bridges the gap between raw data and actionable insights. Built on **Tableau Cloud APIs** , it transforms fragmented enterprise data into AI-driven narratives.
 
 ### Core Features
 
@@ -43,8 +43,8 @@ Insight Weaver bridges the gap between raw data and actionable insights. Built o
 | **Concierge Agent** | Natural language → Tableau visualizations with citations |
 | **Inspector Agent** | Anomaly detection with automated alerts |
 | **Narrative Hub** | Create, revise, and collaborate on analytical narratives |
-| **Data Integration** | Connect Tableau Cloud, Salesforce Data Cloud, and more |
-| **Export Pipeline** | PDF, Markdown, and Salesforce Knowledge exports |
+| **Data Integration** | Connect Tableau Cloud |
+| **Export Pipeline** | PDF, Markdown|
 
 ---
 
@@ -116,7 +116,6 @@ cp .env.example .env.local
 
 Edit `.env.local` with your credentials:
 - Tableau Cloud (Connected App credentials)
-- Salesforce (OAuth app credentials)
 - Slack (Webhook URL for alerts)
 
 ### Step 3: Run Development Servers
@@ -195,11 +194,7 @@ For development, use these demo credentials:
 2. Copy Client ID, Secret ID, and Secret Value
 3. Add to `.env.local`
 
-### Salesforce Data Cloud
 
-1. Create a Connected App in Salesforce
-2. Enable Data Cloud API scope
-3. Add credentials to `.env.local`
 
 ### Slack Webhooks
 
