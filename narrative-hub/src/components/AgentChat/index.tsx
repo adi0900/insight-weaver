@@ -102,15 +102,27 @@ export function AgentChat() {
 
         try {
             // Check for diagnostic command
+            // Check for diagnostic command
             if (input.toUpperCase().includes('DIAGNOSE') || input.toUpperCase().includes('HEALTH')) {
-                const result = await dataSourcesApi.list();
+                let diagnosticContent = '';
+                try {
+                    const result = await dataSourcesApi.list();
+                    diagnosticContent = `DIAGNOSTIC COMPLETE: Connection to Tableau Cloud is HEALTHY.\n\n` +
+                        `• API_URL: ${getApiBaseUrl()}\n` +
+                        `• SITE_ID: ${getTableauSite()}\n` +
+                        `• CUSTOM_VIZ: ${customVizUrl || 'None'}\n\n` +
+                        `Found ${result.data?.length || 0} active data sources.`;
+                } catch (err) {
+                    diagnosticContent = `DIAGNOSTIC FAILED: Connection to Tableau Cloud returned an error.\n\n` +
+                        `• API_URL: ${getApiBaseUrl()}\n` +
+                        `• Error: ${err instanceof Error ? err.message : 'Unknown network error'}\n\n` +
+                        `Please verify your .env.local credentials and ensure your Tableau user email is correctly configured.`;
+                }
 
                 const assistantMessage: Message = {
                     id: `msg-a-diag-${Date.now()}`,
                     role: 'assistant',
-                    content: result.success
-                        ? "DIAGNOSTIC COMPLETE: Connection to Tableau Cloud is HEALTHY. Data sources are being indexed correctly."
-                        : "DIAGNOSTIC FAILED: Connection to Tableau Cloud returned an error. Please verify your .env.local credentials and ensure your Tableau user email is correctly configured.",
+                    content: diagnosticContent,
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
@@ -118,9 +130,16 @@ export function AgentChat() {
                 return;
             }
 
-            // Check for manual viz override
-            if (input.startsWith('/set-viz ')) {
-                let url = input.replace('/set-viz ', '').trim();
+            // Check for manual viz override (case-insensitive)
+            const trimmedInput = input.trim();
+            if (trimmedInput.toLowerCase().startsWith('/set-viz ') || trimmedInput.toLowerCase().startsWith('/setviz ')) {
+                let url = trimmedInput.split(/\s+/).slice(1).join(' ').trim();
+
+                if (!url) {
+                    throw new Error("Please provide a valid Tableau URL after the command.");
+                }
+
+                console.log('[Chat] Updating viz target to:', url);
 
                 // Auto-fix URL format: Convert browser URL to embed URL
                 if (url.includes('/#/site/')) {
@@ -133,7 +152,7 @@ export function AgentChat() {
                 const assistantMessage: Message = {
                     id: `msg-a-conf-${Date.now()}`,
                     role: 'assistant',
-                    content: `✨ CONFIGURATION UPDATED!\n\nVisualization target successfully set to: \n\`${url}\` \n\nI am now weaving this dashboard into our analytical workspace. See the live preview below!`,
+                    content: `✨ VIZ TARGET UPDATED!\n\nTarget Source: \`${url}\` \n\nI have successfully re-wired the visualization engine. This dashboard is now globally accessible within your workspace sessions.`,
                     timestamp: new Date(),
                     visualization: {
                         vizId: 'custom-viz',

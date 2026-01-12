@@ -40,7 +40,7 @@ insightsRouter.post(
                     insightId: `ins_${uuidv4().slice(0, 8)}`,
                     query,
                     visualization: {
-                        vizId: 'Superstore/Overview', // For hackathon, default to superstore for any query
+                        vizId: nlqResult.vizId,
                         embedUrl: nlqResult.embedUrl,
                         type: 'chart',
                     },
