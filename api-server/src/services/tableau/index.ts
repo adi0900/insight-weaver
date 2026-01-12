@@ -318,10 +318,10 @@ class TableauService {
         const siteId = this.config?.siteId || 'nilambhojwaningp-2072bfe41a';
 
         return {
-            vizId: 'Superstore/Overview',
-            embedUrl: `${siteUrl}/t/${siteId}/views/Superstore/Overview`,
+            vizId: 'WorldIndicators/Economy',
+            embedUrl: `${siteUrl}/t/${siteId}/views/WorldIndicators/Economy`,
             query,
-            interpretedAs: `Analyzing regional sales performance for "${query}" in Superstore`,
+            interpretedAs: `Analyzing world indicators for "${query}"`,
             confidence: 0.94,
         };
     }

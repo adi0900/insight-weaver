@@ -35,6 +35,12 @@ export function EmbeddedViz({
 
                 let token = '';
 
+                // 0. Check if Tableau Script is loaded
+                if (typeof window !== 'undefined' && !customElements.get('tableau-viz')) {
+                    console.error('[EmbeddedViz] <tableau-viz> is not registered! Is the script in layout.tsx?');
+                    throw new Error('Tableau Embedding script not loaded. Please refresh or check layout.tsx.');
+                }
+
                 // 1. Fetch the Tableau Token ONLY if it's not a public viz
                 if (!vizUrl.includes('public.tableau.com')) {
                     const apiUrl = `${getApiBaseUrl()}/api/v1/auth/tableau-token`;
@@ -60,9 +66,11 @@ export function EmbeddedViz({
                         throw new Error(data.error || 'Failed to get Tableau authentication token');
                     }
                     token = data.token;
-                    console.log('[EmbeddedViz] Auth token received successfully');
+                    console.log('[EmbeddedViz] Auth token received successfully (length:', token.length, ')');
                 } else {
                     console.log(`[EmbeddedViz] Loading public viz: ${vizUrl}`);
+                    // For public vizzes, we don't need a token, but ensure we don't send one
+                    token = '';
                 }
 
                 // 2. Clear previous viz
@@ -143,7 +151,8 @@ export function EmbeddedViz({
                         <RefreshCw className="w-8 h-8" />
                     </div>
                     <h3 className="text-lg font-bold mb-2">Viz Connection Failed</h3>
-                    <p className="text-sm text-slate-500 mb-6 max-w-xs">{error}</p>
+                    <p className="text-sm text-slate-500 mb-2 max-w-xs">{error}</p>
+                    <p className="text-[10px] font-mono text-slate-400 mb-6 break-all max-w-md">Target: {vizUrl}</p>
                     <button
                         onClick={handleRefresh}
                         className="px-6 py-2 bg-black dark:bg-white text-white dark:text-black text-xs font-mono uppercase tracking-widest hover:bg-brand-500 transition-colors"

@@ -40,7 +40,7 @@ export default function DashboardContent() {
                 localStorage.setItem('iw_token', 'demo-token');
             }
             if (!localStorage.getItem('custom_viz_url')) {
-                localStorage.setItem('custom_viz_url', 'https://public.tableau.com/views/RegionalSampleWorkbook/Storms');
+                localStorage.setItem('custom_viz_url', 'https://prod-in-a.online.tableau.com/t/nilambhojwaningp-2072bfe41a/views/WorldIndicators/Economy');
             }
         }
     }, []);

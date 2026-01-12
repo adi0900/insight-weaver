@@ -188,9 +188,9 @@ export function AgentChat() {
     };
 
     const suggestedQueries = [
-        'QUICK STATS: Q3 SALES',
-        'ANOMALIES: LAST 24H',
-        'FORECAST: NEXT QUARTER',
+        'World Indicators: Economy',
+        'Analyze Tourism Trends',
+        'Show my Sample Dashboard',
     ];
 
     if (!isMounted) return null;
@@ -214,20 +214,20 @@ export function AgentChat() {
                     {messages.length === 1 && (
                         <div className="p-8 lg:p-12 mb-8">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Show me Regional Sales Overview")}>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Show me World Economy Overview")}>
                                     <BarChart2 className="w-5 h-5 text-brand-500 mb-4" />
-                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Regional Sales</h4>
-                                    <p className="text-[10px] text-slate-500 font-mono">"Show me Regional Sales Overview"</p>
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Economy Stats</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Show me World Economy Overview"</p>
                                 </button>
-                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Why did profit margin drop in June?")}>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Identify tourism trends")}>
                                     <Sparkles className="w-5 h-5 text-emerald-500 mb-4" />
-                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Trend Analysis</h4>
-                                    <p className="text-[10px] text-slate-500 font-mono">"Why did profit margin drop in June?"</p>
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Tourism Analysis</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Identify tourism trends"</p>
                                 </button>
-                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Identify top 5 churn-risk customers")}>
+                                <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("Open sample workbook")}>
                                     <FileText className="w-5 h-5 text-blue-500 mb-4" />
-                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Customer Risk</h4>
-                                    <p className="text-[10px] text-slate-500 font-mono">"Identify top 5 churn-risk customers"</p>
+                                    <h4 className="font-display font-bold uppercase text-xs mb-2">Sample Page</h4>
+                                    <p className="text-[10px] text-slate-500 font-mono">"Open sample workbook"</p>
                                 </button>
                                 <button className="p-6 border border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-left group hover:border-brand-500 transition-all" onClick={() => setInput("SYSTEM: DIAGNOSE CONNECTION")}>
                                     <Terminal className="w-5 h-5 text-slate-500 mb-4" />
