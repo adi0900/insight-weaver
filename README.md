@@ -20,13 +20,13 @@ cp .env.example .env.local
 docker-compose up --build
 ```
 
-**Live Demo:** https://insight-weaver-six.vercel.app/dashboard
+**Live Demo:** https://insight-weaver-six.vercel.app
 
 ---
 
 ## 🌐 Deployment Links
 
-- **Frontend (Production):** https://insight-weaver-six.vercel.app/dashboard
+- **Frontend (Production):** https://insight-weaver-six.vercel.app
 - **Backend API:** https://insight-weaver-tpgg.onrender.com
 - **API Health Check:** https://insight-weaver-tpgg.onrender.com/health
 
