@@ -92,7 +92,7 @@ app.get('/health', (req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        version: process.env.npm_package_version || '0.1.0',
+        version: '1.0.4',
         environment: process.env.NODE_ENV || 'development',
         tableau: {
             configured: tableauService.isConfigured(),

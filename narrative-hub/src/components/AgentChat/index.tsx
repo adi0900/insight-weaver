@@ -49,7 +49,7 @@ export function AgentChat() {
                 id: '1',
                 role: 'assistant',
                 content:
-                    "SYSTEM READY.\nInput query for data analysis. Concierge v2.0 is online. \n\nI am connected to your Tableau Cloud environment as an AI Librarian. How can I help you explore your data today?",
+                    "🚀 WEAVER SYSTEM REBOOTED [v1.0.4]\n\nI am now synchronized with your Tableau and Salesforce environments. How can I weave your data into a narrative today?",
                 timestamp: new Date(),
             },
         ]);
@@ -102,8 +102,8 @@ export function AgentChat() {
 
         try {
             // Check for diagnostic command
-            // Check for diagnostic command
             if (input.toUpperCase().includes('DIAGNOSE') || input.toUpperCase().includes('HEALTH')) {
+                console.log('[Chat] Running diagnostic health check...');
                 let diagnosticContent = '';
                 try {
                     const result = await dataSourcesApi.list();

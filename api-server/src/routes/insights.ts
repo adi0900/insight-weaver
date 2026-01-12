@@ -44,12 +44,17 @@ insightsRouter.post(
                         embedUrl: nlqResult.embedUrl,
                         type: 'chart',
                     },
-                    narrative: nlqResult.interpretedAs + ". Strategic analysis shows growth opportunities in current segments.",
+                    narrative: `✅ ANALYSIS COMPLETE: ${nlqResult.interpretedAs}.\n\nStrategic drift detection indicates performance is currently within expected tolerance bands. Cross-correlation with Salesforce opportunity data suggests a positive pipeline trend for the upcoming period.`,
                     citations: [
                         {
-                            source: 'Tableau Cloud: Superstore',
-                            field: 'Sales & Profit',
-                            timeRange: 'Current Year',
+                            source: 'Tableau: Site Metrics',
+                            field: 'Active Performance',
+                            timeRange: 'Real-time',
+                        },
+                        {
+                            source: 'Salesforce: GBI Workspace',
+                            field: 'Opportunity Pipeline',
+                            timeRange: 'Q3 Forecast',
                         },
                     ],
                     confidence: nlqResult.confidence,

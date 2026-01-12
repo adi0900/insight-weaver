@@ -317,11 +317,14 @@ class TableauService {
         const siteUrl = this.config?.cloudUrl || 'https://prod-in-a.online.tableau.com';
         const siteId = this.config?.siteId || 'nilambhojwaningp-2072bfe41a';
 
+        const isWorldIndicators = query.toLowerCase().includes('world') || query.toLowerCase().includes('economy') || query.toLowerCase().includes('tourism');
+        const vizTarget = isWorldIndicators ? 'WorldIndicators/Economy' : 'sample1/sheets/Sheet1';
+
         return {
-            vizId: 'WorldIndicators/Economy',
-            embedUrl: `${siteUrl}/t/${siteId}/views/WorldIndicators/Economy`,
+            vizId: vizTarget,
+            embedUrl: `${siteUrl}/t/${siteId}/views/${vizTarget}`,
             query,
-            interpretedAs: `Analyzing world indicators for "${query}"`,
+            interpretedAs: `Heuristic analysis of "${query}" across ${isWorldIndicators ? 'Global Economic Indicators' : 'Primary Workbook'}`,
             confidence: 0.94,
         };
     }
