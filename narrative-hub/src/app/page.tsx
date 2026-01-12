@@ -24,9 +24,11 @@ import {
     Menu
 } from 'lucide-react';
 import { cn } from '@/utils';
-import BrutalistLoader from '@/components/BrutalistLoader';
-import HeroInteractive from '@/components/HeroInteractive';
-import ArchitecturePipeline from '@/components/ArchitecturePipeline';
+import dynamic from 'next/dynamic';
+
+const BrutalistLoader = dynamic(() => import('@/components/BrutalistLoader'), { ssr: false });
+const HeroInteractive = dynamic(() => import('@/components/HeroInteractive'), { ssr: false });
+const ArchitecturePipeline = dynamic(() => import('@/components/ArchitecturePipeline'), { ssr: false });
 
 gsap.registerPlugin(ScrollTrigger);
 

@@ -17,12 +17,15 @@ import {
     LogOut,
     Info
 } from 'lucide-react';
-import { AgentChat } from '@/components/AgentChat';
-import { NarrativeTimeline } from '@/components/NarrativeTimeline';
-import { AlertDashboard } from '@/components/AlertDashboard';
-import { DataSourcePanel } from '@/components/DataSourcePanel';
-import { WorkflowModal } from '@/components/WorkflowModal';
-import { ProductGuide } from '@/components/ProductGuide';
+import dynamic from 'next/dynamic';
+
+const AgentChat = dynamic(() => import('@/components/AgentChat').then(m => m.AgentChat), { ssr: false });
+const NarrativeTimeline = dynamic(() => import('@/components/NarrativeTimeline').then(m => m.NarrativeTimeline), { ssr: false });
+const AlertDashboard = dynamic(() => import('@/components/AlertDashboard').then(m => m.AlertDashboard), { ssr: false });
+const DataSourcePanel = dynamic(() => import('@/components/DataSourcePanel').then(m => m.DataSourcePanel), { ssr: false });
+const WorkflowModal = dynamic(() => import('@/components/WorkflowModal').then(m => m.WorkflowModal), { ssr: false });
+const ProductGuide = dynamic(() => import('@/components/ProductGuide').then(m => m.ProductGuide), { ssr: false });
+
 
 type View = 'chat' | 'narratives' | 'alerts' | 'data';
 
