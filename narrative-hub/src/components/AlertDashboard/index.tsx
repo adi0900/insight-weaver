@@ -20,6 +20,7 @@ import {
 import { motion } from 'framer-motion';
 import { inspectorApi, narrativesApi } from '@/services/api';
 import { getApiBaseUrl } from '@/utils/env';
+import { FormattedDate } from '@/components/FormattedDate';
 
 interface Alert {
     id: string;
@@ -343,12 +344,11 @@ export function AlertDashboard() {
                                         {alert.severity}
                                     </span>
                                     <span className="text-slate-300 dark:text-slate-700">|</span>
-                                    <span
+                                    <FormattedDate
+                                        date={alert.timestamp}
+                                        format="time"
                                         className="font-mono text-xs text-slate-400 uppercase"
-                                        suppressHydrationWarning
-                                    >
-                                        {alert.timestamp.toLocaleTimeString()}
-                                    </span>
+                                    />
                                 </div>
                                 <h3 className="text-xl font-bold font-display uppercase tracking-tight text-slate-900 dark:text-white mb-1">
                                     {alert.metric}

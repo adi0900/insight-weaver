@@ -29,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'Insight Weaver [DEMO LIVE] | AI-Driven Analytics Narratives',
+    title: 'Insight Weaver | AI-Driven Analytics Narratives',
     description:
         'Transform fragmented enterprise data into collaborative, AI-driven narratives that drive decisions. Powered by Tableau Cloud and Salesforce Data Cloud.',
     keywords: [

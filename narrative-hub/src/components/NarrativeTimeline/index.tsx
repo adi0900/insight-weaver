@@ -23,6 +23,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { narrativesApi } from '@/services/api';
 import { getApiBaseUrl } from '@/utils/env';
+import { FormattedDate } from '@/components/FormattedDate';
 
 interface Revision {
     id: string;
@@ -188,9 +189,11 @@ export function NarrativeTimeline() {
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2">
                                             <Clock className="w-3 h-3 text-slate-400" />
-                                            <span className="font-mono text-[10px] text-slate-400 uppercase">
-                                                {narrative.updatedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                            </span>
+                                            <FormattedDate
+                                                date={narrative.updatedAt}
+                                                format="date"
+                                                className="font-mono text-[10px] text-slate-400 uppercase"
+                                            />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <GitCommit className="w-3 h-3 text-slate-400" />
@@ -261,7 +264,7 @@ export function NarrativeTimeline() {
                                     {selectedNarrative.status}
                                 </span>
                                 <span className="font-mono text-xs text-slate-400">
-                                    Last updated {selectedNarrative.updatedAt.toLocaleDateString()}
+                                    Last updated <FormattedDate date={selectedNarrative.updatedAt} format="date" />
                                 </span>
                             </div>
 
@@ -308,9 +311,11 @@ export function NarrativeTimeline() {
                                                 <div className={`absolute -left-[5px] top-1 w-2 h-2 rounded-full ${idx === 0 ? 'bg-brand-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
 
                                                 <div className="flex items-center gap-3 mb-1">
-                                                    <span className="font-mono text-[10px] text-slate-400 uppercase">
-                                                        {rev.timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                    </span>
+                                                    <FormattedDate
+                                                        date={rev.timestamp}
+                                                        format="date"
+                                                        className="font-mono text-[10px] text-slate-400 uppercase"
+                                                    />
                                                     {idx === 0 && (
                                                         <span className="px-2 py-0.5 bg-brand-500/10 border border-brand-500/30 text-brand-600 dark:text-brand-400 font-mono text-[10px] uppercase">Current</span>
                                                     )}

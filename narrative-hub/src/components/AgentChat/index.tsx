@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { EmbeddedViz } from '@/components/EmbeddedViz';
 import { insightsApi, dataSourcesApi, narrativesApi } from '@/services/api';
 import { getApiBaseUrl, getTableauHost, getTableauSite } from '@/utils/env';
+import { FormattedDate } from '@/components/FormattedDate';
 
 interface Message {
     id: string;
@@ -267,12 +268,11 @@ export function AgentChat() {
                                             <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                                                 {message.role === 'assistant' ? 'INSIGHT ENGINE' : 'USER INPUT'}
                                             </span>
-                                            <span
+                                            <FormattedDate
+                                                date={message.timestamp}
+                                                format="time"
                                                 className="font-mono text-xs text-slate-400 uppercase"
-                                                suppressHydrationWarning
-                                            >
-                                                {message.timestamp.toLocaleTimeString()}
-                                            </span>
+                                            />
                                         </div>
 
                                         <p className={`whitespace-pre-wrap font-sans text-lg leading-relaxed ${message.role === 'assistant' ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-200'

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { dataSourcesApi } from '@/services/api';
+import { FormattedDate } from '@/components/FormattedDate';
 
 interface DataSource {
     id: string;
@@ -171,12 +172,11 @@ export function DataSourcePanel() {
                                 <Clock className="w-4 h-4 text-slate-400" />
                                 <div>
                                     <span className="block text-[10px] font-mono uppercase text-slate-400">Last Sync</span>
-                                    <span
+                                    <FormattedDate
+                                        date={source.lastSync}
+                                        format="full"
                                         className="font-mono text-sm"
-                                        suppressHydrationWarning
-                                    >
-                                        {source.lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {source.lastSync.toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                    </span>
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -184,7 +184,7 @@ export default function DashboardPage() {
                                 <User className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                             </div>
                             <div className="flex-1">
-                                <div className="font-display font-bold text-sm uppercase">Demo User</div>
+                                <div className="font-display font-bold text-sm uppercase">System Administrator</div>
                                 <div className="font-mono text-[10px] text-slate-400">ADMINISTRATOR</div>
                             </div>
                         </div>
