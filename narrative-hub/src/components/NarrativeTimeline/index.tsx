@@ -84,12 +84,33 @@ export function NarrativeTimeline() {
         setExportingPDF(true);
         try {
             const apiUrl = getApiBaseUrl();
-            window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=pdf`;
+            const token = localStorage.getItem('iw_token') || '';
 
-            // Wait a bit to show success state
+            const response = await fetch(`${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=pdf`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Export failed: ${response.statusText}`);
+            }
+
+            // Create download link
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${selectedNarrative.title.toLowerCase().replace(/\s+/g, '_')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
             setTimeout(() => setExportingPDF(false), 2000);
         } catch (err) {
             console.error('[Export] PDF failed:', err);
+            alert('Failed to export PDF. Please try again.');
             setExportingPDF(false);
         }
     };
@@ -99,11 +120,33 @@ export function NarrativeTimeline() {
         setExportingMD(true);
         try {
             const apiUrl = getApiBaseUrl();
-            window.location.href = `${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=markdown`;
+            const token = localStorage.getItem('iw_token') || '';
+
+            const response = await fetch(`${apiUrl}/api/v1/narratives/${selectedNarrative.id}/download?format=markdown`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Export failed: ${response.statusText}`);
+            }
+
+            // Create download link
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${selectedNarrative.title.toLowerCase().replace(/\s+/g, '_')}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
 
             setTimeout(() => setExportingMD(false), 2000);
         } catch (err) {
             console.error('[Export] MD failed:', err);
+            alert('Failed to export Markdown. Please try again.');
             setExportingMD(false);
         }
     };
