@@ -156,7 +156,8 @@ export function AgentChat() {
                     timestamp: new Date(),
                     visualization: {
                         type: result.data.visualization.type === 'table' ? 'table' : 'chart',
-                        vizId: result.data.visualization.vizId
+                        vizId: result.data.visualization.vizId,
+                        embedUrl: result.data.visualization.embedUrl
                     },
                     citations: result.data.citations,
                     confidence: result.data.confidence,

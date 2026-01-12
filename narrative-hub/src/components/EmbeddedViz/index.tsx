@@ -38,26 +38,31 @@ export function EmbeddedViz({
                 // 1. Fetch the Tableau Token ONLY if it's not a public viz
                 if (!vizUrl.includes('public.tableau.com')) {
                     const apiUrl = `${getApiBaseUrl()}/api/v1/auth/tableau-token`;
+                    console.log(`[EmbeddedViz] Attempting to load: ${vizUrl}`);
                     console.log(`[EmbeddedViz] Fetching token from: ${apiUrl}`);
 
                     const response = await fetch(apiUrl, {
                         headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`
+                            'Authorization': `Bearer ${localStorage.getItem('iw_token') || ''}`,
+                            'Accept': 'application/json'
                         }
                     });
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error(`[EmbeddedViz] Token fetch failed (${response.status}): ${errorText}`);
-                        throw new Error(`Auth failed (${response.status}). View console for details.`);
+                        console.error(`[EmbeddedViz] Token fetch failed with status ${response.status}: ${errorText}`);
+                        throw new Error(`Token authentication failed (${response.status}).`);
                     }
 
                     const data = await response.json();
                     if (!data.success) {
+                        console.error('[EmbeddedViz] API returned success:false', data);
                         throw new Error(data.error || 'Failed to get Tableau authentication token');
                     }
                     token = data.token;
-                    console.log('[EmbeddedViz] Token received successfully');
+                    console.log('[EmbeddedViz] Auth token received successfully');
+                } else {
+                    console.log(`[EmbeddedViz] Loading public viz: ${vizUrl}`);
                 }
 
                 // 2. Clear previous viz

@@ -40,6 +40,7 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: (origin, callback) => {
+        console.log(`[CORS Debug] Request from origin: ${origin}`);
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
 
@@ -51,13 +52,18 @@ app.use(cors({
         if (isAllowed) {
             callback(null, true);
         } else {
-            console.warn(`[CORS] Rejected origin: ${origin}`);
+            console.warn(`[CORS] Rejected origin: ${origin}. Allowed origins: ${JSON.stringify(allowedOrigins)}`);
+            // For hackathon development, let's be more permissive if origin contains vercel or localhost
+            if (origin.includes('vercel.app') || origin.includes('localhost')) {
+                console.log(`[CORS] Dynamically allowing ${origin} for hackathon compatibility`);
+                return callback(null, true);
+            }
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 }));
 
 // Rate limiting
