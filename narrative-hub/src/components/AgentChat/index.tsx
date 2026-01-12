@@ -158,7 +158,8 @@ export function AgentChat() {
                         vizId: 'custom-viz',
                         embedUrl: url,
                         type: 'chart'
-                    }
+                    },
+                    confidence: 1.0 // Add confidence so action buttons appear
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
                 setIsLoading(false);
