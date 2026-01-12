@@ -17,7 +17,9 @@ export const getApiBaseUrl = () => {
         }
     }
 
-    return 'https://insight-weaver-api.onrender.com';
+
+    // Priority 3: Fallback to the live Render backend
+    return 'https://insight-weaver-tpgg.onrender.com';
 };
 
 export const getTableauHost = () => {
