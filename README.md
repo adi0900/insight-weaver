@@ -20,7 +20,15 @@ cp .env.example .env.local
 docker-compose up --build
 ```
 
-Open http://localhost:3000 — you're live.
+**Live Demo:** https://insight-weaver-six.vercel.app/dashboard
+
+---
+
+## 🌐 Deployment Links
+
+- **Frontend (Production):** https://insight-weaver-six.vercel.app/dashboard
+- **Backend API:** https://insight-weaver-tpgg.onrender.com
+- **API Health Check:** https://insight-weaver-tpgg.onrender.com/health
 
 ---
 
