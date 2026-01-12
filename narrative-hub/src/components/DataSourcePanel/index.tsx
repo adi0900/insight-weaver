@@ -166,6 +166,32 @@ export function DataSourcePanel() {
                             </div>
                         </div>
 
+                        {/* Metadata Display (for Tableau) */}
+                        {source.type === 'tableau' && (source as any).metadata && (
+                            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-mono uppercase text-slate-400">Host</span>
+                                    <span className="text-xs font-mono text-slate-600 dark:text-slate-400 truncate max-w-[200px]">
+                                        {(source as any).metadata.host}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-mono uppercase text-slate-400">Site ID</span>
+                                    <span className="text-xs font-mono text-brand-600 dark:text-brand-400">
+                                        {(source as any).metadata.siteId}
+                                    </span>
+                                </div>
+                                {(source as any).metadata.configured !== undefined && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-mono uppercase text-slate-400">Config Status</span>
+                                        <span className={`text-xs font-mono font-bold ${(source as any).metadata.configured ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                            {(source as any).metadata.configured ? '✓ CONFIGURED' : '⚠ MISSING ENV VARS'}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* Last Sync with Enhanced Display */}
                         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                             <div className="flex items-center gap-3">
